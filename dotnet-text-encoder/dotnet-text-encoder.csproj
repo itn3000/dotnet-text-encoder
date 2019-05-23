@@ -12,7 +12,7 @@
     <PackageId>dotnet-text-encoder</PackageId>
     <PackageProjectUrl>https://github.com/itn3000/dotnet-text-converter</PackageProjectUrl>
     <PackageTags>text tool converter</PackageTags>
-    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>dotnet global tool for changing text encoding</Description>
   </PropertyGroup>
 
