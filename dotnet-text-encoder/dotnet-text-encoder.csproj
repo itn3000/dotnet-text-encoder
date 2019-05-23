@@ -4,12 +4,13 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <RootNamespace>dotnet_text_encoder</RootNamespace>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <AssemblyName>dotnet-tenc</AssemblyName>
     <ToolCommandName>dotnet-tenc</ToolCommandName>
     <PackAsTool>true</PackAsTool>
     <Copyright>Copyright (C) 2019 itn3000</Copyright>
     <PackageId>dotnet-text-encoder</PackageId>
+    <Authors>itn3000</Authors>
     <PackageProjectUrl>https://github.com/itn3000/dotnet-text-converter</PackageProjectUrl>
     <PackageTags>text tool converter</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
