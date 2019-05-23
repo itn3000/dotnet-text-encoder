@@ -1,1 +1,0 @@
-dotnet pack ".\dotnet-text-encoder\dotnet-text-encoder.csproj" --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg
