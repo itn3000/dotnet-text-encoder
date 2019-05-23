@@ -12,7 +12,7 @@
     <PackageId>dotnet-text-encoder</PackageId>
     <PackageProjectUrl>https://github.com/itn3000/dotnet-text-converter</PackageProjectUrl>
     <PackageTags>text tool converter</PackageTags>
-    <PackageLicenseFile>content/LICENSE.md</PackageLicenseFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <Description>dotnet global tool for changing text encoding</Description>
   </PropertyGroup>
 
@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)../LICENSE.md"/>
+    <None Include="$(MSBuildThisFileDirectory)../LICENSE.md" Pack="true" PackagePath="LICENSE.md"/>
   </ItemGroup>
 
 </Project>
