@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="../LICENSE.md"/>
+    <Content Include="$(MSBuildThisFileDirectory)../LICENSE.md"/>
   </ItemGroup>
 
 </Project>
