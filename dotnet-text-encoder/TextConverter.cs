@@ -6,6 +6,21 @@ namespace dotnet_text_encoder
 {
     static class TextConverter
     {
+        public static Encoding GetEncodingFromString(string str)
+        {
+            if(string.IsNullOrEmpty(str))
+            {
+                return Encoding.UTF8;
+            }
+            else if(int.TryParse(str, out var cp))
+            {
+                return Encoding.GetEncoding(cp);
+            }
+            else
+            {
+                return Encoding.GetEncoding(str);
+            }
+        }
         public static void ConvertStream(Stream input, Encoding inputEncoding, Stream output, Encoding outputEncoding, bool noPreamble)
         {
             using (var sr = new StreamReader(input, inputEncoding))
@@ -28,8 +43,9 @@ namespace dotnet_text_encoder
                             output.Write(pre, 0, pre.Length);
                         }
                     }
+                    first = false;
                     var wlen = outputEncoding.GetByteCount(buf, 0, charread);
-                    if(wlen > wbuf.Length)
+                    if (wlen > wbuf.Length)
                     {
                         ArrayPool<byte>.Shared.Return(wbuf);
                         wbuf = ArrayPool<byte>.Shared.Rent(wlen);

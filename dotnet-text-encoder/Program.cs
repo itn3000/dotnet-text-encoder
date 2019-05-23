@@ -69,21 +69,6 @@ namespace dotnet_text_encoder
                 return File.Create(filePath);
             }
         }
-        static Encoding GetEncodingFromString(string str)
-        {
-            if(string.IsNullOrEmpty(str))
-            {
-                return Encoding.UTF8;
-            }
-            else if(int.TryParse(str, out var cp))
-            {
-                return Encoding.GetEncoding(cp);
-            }
-            else
-            {
-                return Encoding.GetEncoding(str);
-            }
-        }
         static void Main(string[] args)
         {
             var res = Parser.Default.ParseArguments<Options>(args)
@@ -92,8 +77,8 @@ namespace dotnet_text_encoder
                     try
                     {
                         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-                        var fromenc = GetEncodingFromString(opt.FromEncoding);
-                        var toenc = GetEncodingFromString(opt.ToEncoding);
+                        var fromenc = TextConverter.GetEncodingFromString(opt.FromEncoding);
+                        var toenc = TextConverter.GetEncodingFromString(opt.ToEncoding);
                         using (var instm = GetInputStream(opt.InputFile))
                         using (var outstm = GetOutputStream(opt.OutputFile))
                         {
