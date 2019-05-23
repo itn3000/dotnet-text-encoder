@@ -1,12 +1,13 @@
 # dotnet-text-encoder
 
 dotnet global tool for changing text encoding.
+[nuget package](https://www.nuget.org/packages/dotnet-text-encoder/)
 
 # Requirements
 
 * [dotnet sdk 2.1 or later](https://dotnet.microsoft.com/download)
 
-# Install(TODO)
+# Install
 
 1. do following command
     `dotnet tool install -g dotnet-text-encoder`
