@@ -1,0 +1,9 @@
+version 1.0.{build}
+image: Visual Studio 2019 Preview
+configuration: Release
+test: off
+artifacts:
+  - path: dotnet-text-encoder\bin\Release\*.nupkg
+    name: NugetPackages
+nuget:
+  project_feed: true

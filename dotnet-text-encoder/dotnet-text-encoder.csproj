@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <RootNamespace>dotnet_text_encoder</RootNamespace>
+    <Version>0.1.0</Version>
+    <AssemblyName>dotnet-tenc</AssemblyName>
+    <ToolCommandName>dotnet-tenc</ToolCommandName>
+    <PackAsTool>true</PackAsTool>
+    <Copyright>Copyright (C) itn3000 2019</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandlineParser" Version="2.5.0" />
+    <PackageReference Include="System.Buffers" Version="4.5.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
+  </ItemGroup>
+
+</Project>
