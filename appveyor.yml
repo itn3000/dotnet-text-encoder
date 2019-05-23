@@ -6,7 +6,6 @@ install:
 build:
   publish_nuget: true
   publish_nuget_symbols: true
-  use_snupkg_format: true
   publish_core_console: true
 nuget:
   project_feed: true
