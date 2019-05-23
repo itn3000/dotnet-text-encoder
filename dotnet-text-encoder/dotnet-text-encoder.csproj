@@ -8,13 +8,22 @@
     <AssemblyName>dotnet-tenc</AssemblyName>
     <ToolCommandName>dotnet-tenc</ToolCommandName>
     <PackAsTool>true</PackAsTool>
-    <Copyright>Copyright (C) itn3000 2019</Copyright>
+    <Copyright>Copyright (C) 2019 itn3000</Copyright>
+    <PackageId>dotnet-text-encoder</PackageId>
+    <PackageProjectUrl>https://github.com/itn3000/dotnet-text-converter</PackageProjectUrl>
+    <PackageTags>text tool converter</PackageTags>
+    <PackageLicenseFile>content/LICENSE.md</PackageLicenseFile>
+    <Description>dotnet global tool for changing text encoding</Description>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CommandlineParser" Version="2.5.0" />
     <PackageReference Include="System.Buffers" Version="4.5.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="../LICENSE.md"/>
   </ItemGroup>
 
 </Project>

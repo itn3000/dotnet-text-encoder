@@ -33,7 +33,7 @@ namespace Dotnet.Text.Encoder.Test
         [Fact]
         public void NoPreamble()
         {
-            var srcstr = new string(Enumerable.Range(0, 10).Select(x => 'あ').ToArray());
+            var srcstr = new string(Enumerable.Range(0, 10000).Select(x => 'あ').ToArray());
             var srcenc = Encoding.UTF8;
             var destenc = Encoding.UTF8;
             using(var instm = new MemoryStream(srcenc.GetBytes(srcstr)))
@@ -51,7 +51,7 @@ namespace Dotnet.Text.Encoder.Test
         [Fact]
         public void Preamble()
         {
-            var srcstr = new string(Enumerable.Range(0, 10).Select(x => 'あ').ToArray());
+            var srcstr = new string(Enumerable.Range(0, 10000).Select(x => 'あ').ToArray());
             var srcenc = Encoding.UTF8;
             var destenc = Encoding.UTF8;
             using(var instm = new MemoryStream(srcenc.GetBytes(srcstr)))
