@@ -4,7 +4,7 @@ dotnet global tool for changing text encoding.
 
 # Requirements
 
-* `dotnet sdk 2.1 or later`:https://dotnet.microsoft.com/download
+* [dotnet sdk 2.1 or later](https://dotnet.microsoft.com/download)
 
 # Install(TODO)
 
