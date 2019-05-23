@@ -10,3 +10,17 @@ build:
   publish_core_console: true
 nuget:
   project_feed: true
+deploy:
+  - provider: NuGet
+    api_key:
+      secure: "cBhFGxYbVqaS/5heofXfit4pryhFzSS5RDsvo50QUAS8G4QP3MQR+QAZpFJAT44w"
+    on:
+      APPVEYOR_REPO_TAG: true
+      branch: master
+  - provider: GitHub
+    auth_token:
+      secure: "9DHwliLiN7wl/1qx1UYppunL9W78gl+EI8Wu+ISPOLp84bgTyrSME4go+Xz384NT"
+    draft: true
+    on:
+      branch: master
+      APPVEYOR_REPO_TAG: true
