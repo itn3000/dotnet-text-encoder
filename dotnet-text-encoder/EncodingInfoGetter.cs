@@ -85,7 +85,6 @@ try get info by codepage number(range)
                             {
                                 continue;
                             }
-                            _Console.WriteLine($"{cpstart},{cpend}");
                             foreach (var cp in Enumerable.Range(cpstart, cpend - cpstart + 1))
                             {
                                 yield return DoTestByCodePage(cp);
