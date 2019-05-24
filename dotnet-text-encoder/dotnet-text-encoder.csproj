@@ -4,27 +4,27 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <RootNamespace>dotnet_text_encoder</RootNamespace>
-    <Version>0.1.1</Version>
+    <Version>0.2.0</Version>
     <AssemblyName>dotnet-tenc</AssemblyName>
     <ToolCommandName>dotnet-tenc</ToolCommandName>
     <PackAsTool>true</PackAsTool>
     <Copyright>Copyright (C) 2019 itn3000</Copyright>
     <PackageId>dotnet-text-encoder</PackageId>
     <Authors>itn3000</Authors>
-    <PackageProjectUrl>https://github.com/itn3000/dotnet-text-converter</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/itn3000/dotnet-text-encoder</PackageProjectUrl>
     <PackageTags>text tool converter</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>dotnet global tool for changing text encoding</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandlineParser" Version="2.5.0" />
+    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.3.4" />
     <PackageReference Include="System.Buffers" Version="4.5.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)../LICENSE.md" Pack="true" PackagePath="LICENSE.md"/>
+    <None Include="$(MSBuildThisFileDirectory)../LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
   </ItemGroup>
 
 </Project>

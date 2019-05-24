@@ -1,52 +1,55 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using CommandLine;
-using CommandLine.Text;
 using System.Linq;
+using McMaster.Extensions.CommandLineUtils;
 
 namespace dotnet_text_encoder
 {
+    [Command(ExtendedHelpText = @"
+changing text encoding
+Examples:
+input utf-8,output shift_jis(cp932) by name:
+  dotnet tenc -f utf-8 -t shift_jis -i utf8.txt -o sjis.txt
+input utf-8,output shift_jis(cp932) by code page
+  dotnet tenc -f 65001 -t 932 -i utf8.txt -o sjis.txt
+input utf-8,output utf-8 without BOM(BOM added by default)
+  dotnet tenc -f utf-8 -t shift_jis -i utf8.txt -o sjis.txt -n
+")]
+    [Subcommand(typeof(EncodingInfoGetter))]
+    [VersionOption("dotnet-tenc 0.2.0")]
     class Options
     {
-        [Option('f', "from", HelpText = "input file encoding(default: UTF-8)")]
+        [Option("-f|--from", "input file encoding(default: UTF-8)", CommandOptionType.SingleValue)]
         public string FromEncoding { get; set; }
-        [Option('t', "to", HelpText = "output file encoding(default: UTF-8)")]
+        [Option("-t|--to", "output file encoding(default: UTF-8)", CommandOptionType.SingleValue)]
         public string ToEncoding { get; set; }
-        [Option('i', "input", HelpText = "input file path(default: standard input)")]
+        [Option("-i|--input", "input file path(default: standard input)", CommandOptionType.SingleValue)]
         public string InputFile { get; set; }
-        [Option('o', "output", HelpText = "output file path(default: standard output)")]
+        [Option("-o|--output", "output file path(default: standard output)", CommandOptionType.SingleValue)]
         public string OutputFile { get; set; }
-        [Option('n', "no-preamble", HelpText = "disable output preamble(=BOM) if exists")]
+        [Option("-n|--no-preamble", "disable output preamble(=BOM) if exists", CommandOptionType.NoValue)]
         public bool NoPreamble { get; set; }
-        [Usage]
-        public static Example[] Usage => new Example[]
+        public int OnExecute()
         {
-            new Example("basic usage", new UnParserSettings(), new Options()
+            try
             {
-                InputFile = "[input file]",
-                OutputFile = "[output file]",
-                FromEncoding = "[from encoding]",
-                ToEncoding = "[to encoding]"
-            }),
-            new Example("read standard input", new UnParserSettings(), new Options()
+                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+                var fromenc = TextConverter.GetEncodingFromString(FromEncoding);
+                var toenc = TextConverter.GetEncodingFromString(ToEncoding);
+                using (var instm = GetInputStream(InputFile))
+                using (var outstm = GetOutputStream(OutputFile))
+                {
+                    TextConverter.ConvertStream(instm, fromenc, outstm, toenc, NoPreamble);
+                }
+                return 0;
+            }
+            catch (Exception e)
             {
-                OutputFile = "[output file]",
-                FromEncoding = "[from encoding]",
-                ToEncoding = "[to encoding]"
-            }),
-            new Example("disable preamble(BOM)", new UnParserSettings(), new Options()
-            {
-                InputFile = "[input file]",
-                OutputFile = "[output file]",
-                FromEncoding = "[from encoding]",
-                ToEncoding = "utf-8",
-                NoPreamble = true
-            }),
-        };
-    }
-    class Program
-    {
+                Console.Error.WriteLine($"converting error:{e}");
+                return 2;
+            }
+        }
         static Stream GetInputStream(string filePath)
         {
             if (string.IsNullOrEmpty(filePath))
@@ -69,40 +72,80 @@ namespace dotnet_text_encoder
                 return File.Create(filePath);
             }
         }
+        // [Usage]
+        // public static Example[] Usage => new Example[]
+        // {
+        //     new Example("basic usage", new UnParserSettings(), new Options()
+        //     {
+        //         InputFile = "[input file]",
+        //         OutputFile = "[output file]",
+        //         FromEncoding = "[from encoding]",
+        //         ToEncoding = "[to encoding]"
+        //     }),
+        //     new Example("read standard input", new UnParserSettings(), new Options()
+        //     {
+        //         OutputFile = "[output file]",
+        //         FromEncoding = "[from encoding]",
+        //         ToEncoding = "[to encoding]"
+        //     }),
+        //     new Example("disable preamble(BOM)", new UnParserSettings(), new Options()
+        //     {
+        //         InputFile = "[input file]",
+        //         OutputFile = "[output file]",
+        //         FromEncoding = "[from encoding]",
+        //         ToEncoding = "utf-8",
+        //         NoPreamble = true
+        //     }),
+        // };
+    }
+    class Program
+    {
         static void Main(string[] args)
         {
-            var res = Parser.Default.ParseArguments<Options>(args)
-                .WithParsed(opt =>
-                {
-                    try
-                    {
-                        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-                        var fromenc = TextConverter.GetEncodingFromString(opt.FromEncoding);
-                        var toenc = TextConverter.GetEncodingFromString(opt.ToEncoding);
-                        using (var instm = GetInputStream(opt.InputFile))
-                        using (var outstm = GetOutputStream(opt.OutputFile))
-                        {
-                            TextConverter.ConvertStream(instm, fromenc, outstm, toenc, opt.NoPreamble);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.Error.WriteLine($"converting error:{e}");
-                        Environment.ExitCode = 2;
-                    }
-                })
-                ;
-            if (res.Tag == ParserResultType.NotParsed)
-            {
-                var notParsed = (NotParsed<Options>)res;
-                if (!notParsed.Errors.Any(x => x.Tag == ErrorType.HelpRequestedError) &&
-                    !notParsed.Errors.Any(x => x.Tag == ErrorType.VersionRequestedError))
-                {
-                    Environment.ExitCode = 1;
-                }
-                // HelpText.AutoBuild(res, null, null)
-                //     .AddPreOptionsLine(HelpText.RenderParsingErrorsText(res, er => er.)
-            }
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            var ret = CommandLineApplication.Execute<Options>(args);
+            Environment.ExitCode = ret;
+
+            // var res = Parser.Default.ParseArguments<Options, EncodingTester>(args)
+            //     .WithParsed<Options>(opt =>
+            //     {
+            //         try
+            //         {
+            //             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            //             var fromenc = TextConverter.GetEncodingFromString(opt.FromEncoding);
+            //             var toenc = TextConverter.GetEncodingFromString(opt.ToEncoding);
+            //             using (var instm = GetInputStream(opt.InputFile))
+            //             using (var outstm = GetOutputStream(opt.OutputFile))
+            //             {
+            //                 TextConverter.ConvertStream(instm, fromenc, outstm, toenc, opt.NoPreamble);
+            //             }
+            //         }
+            //         catch (Exception e)
+            //         {
+            //             Console.Error.WriteLine($"converting error:{e}");
+            //             Environment.ExitCode = 2;
+            //         }
+            //     })
+            //     .WithParsed<EncodingTester>(tester =>
+            //     {
+            //         Console.WriteLine($"Name,CodePage,Found,DisplayName");
+            //         foreach (var result in tester.GetTestResults())
+            //         {
+            //             Console.WriteLine($"{result.Name},{result.CodePage},{result.Found},{result.DisplayName}");
+            //         }
+            //     })
+            //     ;
+            // if (res.Tag == ParserResultType.NotParsed)
+            // {
+            //     var notParsed = (NotParsed<object>)res;
+            //     if (!notParsed.Errors.Any(x => x.Tag == ErrorType.HelpRequestedError) &&
+            //         !notParsed.Errors.Any(x => x.Tag == ErrorType.VersionRequestedError))
+            //     {
+            //         Environment.ExitCode = 1;
+            //     }
+            //     // HelpText.AutoBuild(res, null, null)
+            //     //     .AddPreOptionsLine(HelpText.RenderParsingErrorsText(res, er => er.)
+            // }
         }
     }
 }

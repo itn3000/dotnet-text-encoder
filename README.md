@@ -16,32 +16,72 @@ and then you can execute command by `dotnet tenc` or `dotnet-tenc`
 
 # Usage
 
+## Basic Usage
+
 here is the help output
 
 ```
-dotnet-tenc 0.1.0
-Copyright (C) itn3000 2019
-USAGE:
-basic usage:
-  dotnet-tenc --from "[from encoding]" --input "[input file]" --output "[output file]" --to "[to encoding]"
-read standard input:
-  dotnet-tenc --from "[from encoding]" --output "[output file]" --to "[to encoding]"
-disable preamble(BOM):
-  dotnet-tenc --from "[from encoding]" --input "[input file]" --no-preamble --output "[output file]" --to utf-8
+dotnet-tenc 0.2.0
 
-  -f, --from           input file encoding(default: UTF-8)
+Usage: dotnet-tenc [options] [command]
 
-  -t, --to             output file encoding(default: UTF-8)
+Options:
+  --version         Show version information
+  -f|--from         input file encoding(default: UTF-8)
+  -t|--to           output file encoding(default: UTF-8)
+  -i|--input        input file path(default: standard input)
+  -o|--output       output file path(default: standard output)
+  -n|--no-preamble  disable output preamble(=BOM) if exists
+  -?|-h|--help      Show help information
 
-  -i, --input          input file path(default: standard input)
+Commands:
+  getinfo           
 
-  -o, --output         output file path(default: standard output)
+Run 'dotnet-tenc [command] --help' for more information about a command.
 
-  -n, --no-preamble    disable output preamble(=BOM) if exists
+changing text encoding
+Examples:
+input utf-8,output shift_jis(cp932) by name:
+  dotnet tenc -f utf-8 -t shift_jis -i utf8.txt -o sjis.txt
+input utf-8,output shift_jis(cp932) by code page
+  dotnet tenc -f 65001 -t 932 -i utf8.txt -o sjis.txt
+input utf-8,output utf-8 without BOM(BOM added by default)
+  dotnet tenc -f utf-8 -t shift_jis -i utf8.txt -o sjis.txt -n
+```
 
-  --help               Display this help screen.
+## Getting encoding info
 
-  --version            Display version information.
+Since 0.2.0, `getinfo` subcommand is added.
+This command gets the information of specified encodings.
+
+Here is the help text
+
+```
+Usage: dotnet-tenc getinfo [options]
+
+Options:
+  -n|--name        encoding names
+  -c|--codepage    code page range(number separated by '-', number is must be 0 - 65535)
+  -s|--show-fault  show fault result
+  -?|-h|--help     Show help information
+
+getting encoding info and output by CSV format
+
+Examples:
+try get info by name:
+    dotnet tenc getinfo -n shift_jis
+try get info by codepage number(single)
+    dotnet tenc getinfo -c 932
+try get info by codepage number(range)
+    dotnet tenc getinfo -c 0-1000
+```
+
+and then command will output following CSV format
+
+```
+> dotnet tenc getinfo -n utf-8
+Name,CodePage,Found,DisplayName,Preamble
+utf-8,65001,True,Unicode (UTF-8),efbbbf
 ```
 
 # Build
