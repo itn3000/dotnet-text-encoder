@@ -69,12 +69,12 @@ Options:
 getting encoding info and output by CSV format
 
 Examples:
-try get info by name:
-    dotnet tenc getinfo -n shift_jis
+try get info by name(multiple select is allowed):
+    dotnet tenc getinfo -n shift_jis -n utf-8
 try get info by codepage number(single)
     dotnet tenc getinfo -c 932
-try get info by codepage number(range)
-    dotnet tenc getinfo -c 0-1000
+try get info by codepage number(range, multiple select is allowed)
+    dotnet tenc getinfo -c 0-1000 -c 2000-3000
 ```
 
 and then command will output following CSV format
