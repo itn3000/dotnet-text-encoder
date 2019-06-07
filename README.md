@@ -22,7 +22,7 @@ and then you can execute command by `dotnet tenc` or `dotnet-tenc`
 here is the help output
 
 ```
-dotnet-tenc 0.2.0
+dotnet-tenc 0.3.0
 
 Usage: dotnet-tenc [options] [command]
 
@@ -33,6 +33,7 @@ Options:
   -i|--input        input file path(default: standard input)
   -o|--output       output file path(default: standard output)
   -n|--no-preamble  disable output preamble(=BOM) if exists
+  -e|--eol          converting end of line(cr,crlf,lf,none: default=none)
   -?|-h|--help      Show help information
 
 Commands:
