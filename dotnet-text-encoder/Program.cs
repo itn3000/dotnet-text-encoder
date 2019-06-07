@@ -6,6 +6,13 @@ using McMaster.Extensions.CommandLineUtils;
 
 namespace dotnet_text_encoder
 {
+    enum Newline
+    {
+        None,
+        Cr,
+        Crlf,
+        Lf,
+    }
     [Command(ExtendedHelpText = @"
 changing text encoding
 Examples:
@@ -30,6 +37,8 @@ input utf-8,output utf-8 without BOM(BOM added by default)
         public string OutputFile { get; set; }
         [Option("-n|--no-preamble", "disable output preamble(=BOM) if exists", CommandOptionType.NoValue)]
         public bool NoPreamble { get; set; }
+        [Option("-e|--eol", "converting end of line(cr,crlf,lf)", CommandOptionType.SingleValue)]
+        public Newline Newline { get; set; }
         public int OnExecute()
         {
             try
@@ -40,7 +49,7 @@ input utf-8,output utf-8 without BOM(BOM added by default)
                 using (var instm = GetInputStream(InputFile))
                 using (var outstm = GetOutputStream(OutputFile))
                 {
-                    TextConverter.ConvertStream(instm, fromenc, outstm, toenc, NoPreamble);
+                    TextConverter.ConvertStream(instm, fromenc, outstm, toenc, NoPreamble, Newline);
                 }
                 return 0;
             }
