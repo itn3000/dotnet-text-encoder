@@ -6,7 +6,7 @@ using McMaster.Extensions.CommandLineUtils;
 
 namespace dotnet_text_encoder
 {
-    enum Newline
+    public enum Newline
     {
         None,
         Cr,

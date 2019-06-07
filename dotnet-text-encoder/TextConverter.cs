@@ -24,9 +24,11 @@ namespace dotnet_text_encoder
                 return Encoding.GetEncoding(str);
             }
         }
-        static readonly byte[] Cr = new byte[] { 0x0a };
-        static readonly byte[] Lf = new byte[] { 0x0d };
-        static readonly byte[] CrLf = new byte[] { 0x0a, 0x0d };
+        static readonly byte[] Cr = new byte[] { CrValue };
+        static readonly byte[] Lf = new byte[] { LfValue };
+        static readonly byte[] CrLf = new byte[] { CrValue, LfValue };
+        const byte CrValue = 0x0d;
+        const byte LfValue = 0x0a;
         public static void ConvertStream(Stream input, Encoding inputEncoding, Stream output, Encoding outputEncoding, bool noPreamble, Newline nl = Newline.None)
         {
             using (var sr = new StreamReader(input, inputEncoding))
@@ -34,6 +36,7 @@ namespace dotnet_text_encoder
                 var buf = new char[4096];
                 bool first = true;
                 var wbuf = ArrayPool<byte>.Shared.Rent(4096);
+                bool prevcr = false;
                 while (true)
                 {
                     var charread = sr.Read(buf, 0, buf.Length);
@@ -57,36 +60,16 @@ namespace dotnet_text_encoder
                         wbuf = ArrayPool<byte>.Shared.Rent(wlen);
                     }
                     outputEncoding.GetBytes(buf, 0, charread, wbuf, 0);
-                    var wsp = wbuf.AsSpan(wlen);
-                    while (true)
-                    {
-                        var nloff = FindNewlineOffset(wsp, nl);
-                        if (nloff < 0)
-                        {
-                            output.Write(wsp);
-                            break;
-                        }
-                        output.Write(wsp.Slice(0, nloff));
-                        switch (nl)
-                        {
-                            case Newline.Cr:
-                                output.Write(Cr.AsSpan());
-                                break;
-                            case Newline.Lf:
-                                output.Write(Lf.AsSpan());
-                                break;
-                            case Newline.Crlf:
-                                output.Write(CrLf.AsSpan());
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    output.Write(wbuf, 0, wlen);
+                    prevcr = WriteBytesToStream(output, wbuf.AsMemory(0, wlen), nl, prevcr);
+                }
+                if(prevcr)
+                {
+                    // treat last cr
+                    WriteNewline(output, nl, Cr.AsSpan());
                 }
             }
         }
-        static void WriteNewline(Stream stm, Newline nl)
+        static void WriteNewline(Stream stm, Newline nl, ReadOnlySpan<byte> defaultValue)
         {
             switch (nl)
             {
@@ -100,32 +83,69 @@ namespace dotnet_text_encoder
                     stm.Write(CrLf.AsSpan());
                     break;
                 default:
+                    stm.Write(defaultValue);
                     break;
             }
         }
-        static int FindNewlineOffset(ReadOnlySpan<byte> sp, Newline nl)
+        static bool WriteBytesToStream(Stream stm, ReadOnlyMemory<byte> mem, Newline nlid, bool prevcr)
         {
-            Span<byte> crlf = stackalloc byte[2];
-            crlf[0] = 0x0a;
-            crlf[1] = 0x0d;
-            switch (nl)
+            var rsp = mem.Span;
+            for (int i = 0; i < rsp.Length; i++)
             {
-                case Newline.Crlf:
-                    return sp.IndexOfAny((byte)0x0a, (byte)0x0d);
-                case Newline.Cr:
-                case Newline.Lf:
-                    var idx = sp.IndexOf(crlf);
-                    if (idx == -1)
+                if (rsp[i] == CrValue)
+                {
+                    // CR has come, but cannot decide whether CRLR or CR + [another char]
+                    if (i != 0)
                     {
-                        return sp.IndexOf((byte)0x0d);
+                        stm.Write(rsp.Slice(0, i));
+                    }
+                    rsp = rsp.Slice(i + 1);
+                    i = -1;
+                    prevcr = true;
+                }
+                else if (rsp[i] == LfValue)
+                {
+                    if (prevcr)
+                    {
+                        if (i != 0)
+                        {
+                            stm.Write(rsp.Slice(0, i));
+                        }
+                        // CRLF has come
+                        WriteNewline(stm, nlid, CrLf.AsSpan());
+                        rsp = rsp.Slice(i + 1);
+                        i = -1;
+                        prevcr = false;
                     }
                     else
                     {
-                        return idx;
+                        // single LF has come
+                        if (i != 0)
+                        {
+                            stm.Write(rsp.Slice(0, i));
+                        }
+                        WriteNewline(stm, nlid, Lf.AsSpan());
+                        rsp = rsp.Slice(i + 1);
+                        i = -1;
                     }
-                default:
-                    return -1;
+                }
+                else
+                {
+                    if (prevcr)
+                    {
+                        // single CR has come
+                        WriteNewline(stm, nlid, Cr.AsSpan());
+                        prevcr = false;
+                        i--;
+                    }
+                }
             }
+            // write remaining data
+            if (!rsp.IsEmpty)
+            {
+                stm.Write(rsp);
+            }
+            return prevcr;
         }
         public static async Task ConvertStreamAsync(Stream input, Encoding inputEncoding, Stream output, Encoding outputEncoding, bool noPreamble, Newline nl = Newline.None)
         {
@@ -164,48 +184,30 @@ namespace dotnet_text_encoder
                     }),
                     Task.Run(async () =>
                     {
-                        Action<Stream, Memory<byte>, Newline, bool> wfunc = (stm, mem, nlid, prevcr) =>
-                        {
-                            var rsp = mem.Span;
-                            for (int i = 0; i < rsp.Length - 1; i++)
-                            {
-                                if(rsp[i] == 0x0a)
-                                {
-                                    if(rsp[i + 1] == 0x0d)
-                                    {
-                                        if(nlid == Newline.Cr)
-                                        {
-                                            stm.Write(Cr.AsSpan());
-                                        }
-                                        else if(nlid == Newline.Lf)
-                                        {
-                                            stm.Write(Lf.AsSpan());
-                                        }
-                                        i++;
-                                    }
-                                }
-                                else if(rsp[i] == 0x0d)
-                                {
-                                    
-                                }
-                            }
-                        };
+                        bool prevcr = false;
+                        bool first = true;
                         while (true)
                         {
                             var readResult = await pipe.Reader.ReadAsync().ConfigureAwait(false);
                             if (!readResult.Buffer.IsEmpty)
                             {
-                                foreach (var rbuf in readResult.Buffer)
+                                if (first && !noPreamble)
                                 {
-                                    if (nl == Newline.None)
+                                    var pre = outputEncoding.GetPreamble();
+                                    if (pre != null && pre.Length != 0)
                                     {
-                                        output.Write(rbuf.Span);
-                                    }
-                                    else
-                                    {
-                                        int noff = 0;
+                                        output.Write(pre, 0, pre.Length);
                                     }
                                 }
+                                first = false;
+                                foreach (var rbuf in readResult.Buffer)
+                                {
+                                    prevcr = WriteBytesToStream(output, rbuf, nl, prevcr);
+                                }
+                            }
+                            if (readResult.Buffer.IsEmpty && readResult.IsCompleted)
+                            {
+                                break;
                             }
                         }
                     })
