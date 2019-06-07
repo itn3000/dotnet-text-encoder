@@ -24,7 +24,7 @@ input utf-8,output utf-8 without BOM(BOM added by default)
   dotnet tenc -f utf-8 -t shift_jis -i utf8.txt -o sjis.txt -n
 ")]
     [Subcommand(typeof(EncodingInfoGetter))]
-    [VersionOption("dotnet-tenc 0.2.1")]
+    [VersionOption("dotnet-tenc 0.3.0")]
     class Options
     {
         [Option("-f|--from", "input file encoding(default: UTF-8)", CommandOptionType.SingleValue)]
@@ -37,7 +37,7 @@ input utf-8,output utf-8 without BOM(BOM added by default)
         public string OutputFile { get; set; }
         [Option("-n|--no-preamble", "disable output preamble(=BOM) if exists", CommandOptionType.NoValue)]
         public bool NoPreamble { get; set; }
-        [Option("-e|--eol", "converting end of line(cr,crlf,lf)", CommandOptionType.SingleValue)]
+        [Option("-e|--eol", "converting end of line(cr,crlf,lf,none: default=none)", CommandOptionType.SingleValue)]
         public Newline Newline { get; set; }
         public int OnExecute()
         {

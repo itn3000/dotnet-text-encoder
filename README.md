@@ -95,3 +95,18 @@ you can test local nuget package by following command.
 `dotnet tool install --tool-path [installdir] --add-source [path to nupkg directory] dotnet-text-encoder`
 
 After executing, executable files are place in `[installdir]`.
+
+# Release Notes
+
+## 0.3.0
+
+* add `-e`(convert eol) option
+
+## 0.2.1
+
+* add `getinfo` subcommand
+
+## 0.1.0
+
+* first release
+
