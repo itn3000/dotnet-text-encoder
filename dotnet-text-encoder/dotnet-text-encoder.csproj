@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <RootNamespace>dotnet_text_encoder</RootNamespace>
-    <Version>0.3.0</Version>
+    <Version>1.0.0</Version>
     <AssemblyName>dotnet-tenc</AssemblyName>
     <ToolCommandName>dotnet-tenc</ToolCommandName>
     <PackAsTool>true</PackAsTool>
@@ -20,7 +20,6 @@
   <ItemGroup>
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.3.4" />
     <PackageReference Include="System.Buffers" Version="4.5.0" />
-    <PackageReference Include="System.IO.Pipelines" Version="4.5.3" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
   </ItemGroup>
 

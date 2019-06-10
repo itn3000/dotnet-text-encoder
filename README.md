@@ -22,7 +22,7 @@ and then you can execute command by `dotnet tenc` or `dotnet-tenc`
 here is the help output
 
 ```
-dotnet-tenc 0.3.0
+dotnet-tenc 1.0.0
 
 Usage: dotnet-tenc [options] [command]
 
@@ -99,7 +99,7 @@ After executing, executable files are place in `[installdir]`.
 
 # Release Notes
 
-## 0.3.0
+## 1.0.0
 
 * add `-e`(convert eol) option
 

@@ -24,7 +24,7 @@ input utf-8,output utf-8 without BOM(BOM added by default)
   dotnet tenc -f utf-8 -t shift_jis -i utf8.txt -o sjis.txt -n
 ")]
     [Subcommand(typeof(EncodingInfoGetter))]
-    [VersionOption("dotnet-tenc 0.3.0")]
+    [VersionOption("dotnet-tenc 1.0.0")]
     class Options
     {
         [Option("-f|--from", "input file encoding(default: UTF-8)", CommandOptionType.SingleValue)]
