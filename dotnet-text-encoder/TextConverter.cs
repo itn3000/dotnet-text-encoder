@@ -59,15 +59,79 @@ namespace dotnet_text_encoder
                         ArrayPool<byte>.Shared.Return(wbuf);
                         wbuf = ArrayPool<byte>.Shared.Rent(wlen);
                     }
-                    outputEncoding.GetBytes(buf, 0, charread, wbuf, 0);
-                    prevcr = WriteBytesToStream(output, wbuf.AsMemory(0, wlen), nl, prevcr);
+                    // outputEncoding.GetBytes(buf, 0, charread, wbuf, 0);
+                    outputEncoding.GetBytes(buf.AsSpan(0, charread), wbuf.AsSpan());
+                    prevcr = WriteBytesToStream(output, buf.AsSpan(0, charread), nl, prevcr, outputEncoding, ref wbuf);
                 }
-                if(prevcr)
+                if (prevcr)
                 {
                     // treat last cr
                     WriteNewline(output, nl, Cr.AsSpan());
                 }
             }
+        }
+        static bool WriteBytesToStream(Stream output, ReadOnlySpan<char> input, Newline nl, bool prevcr, Encoding outputEncoding, ref byte[] wbuf)
+        {
+            int off = 0;
+            Span<byte> wspan = wbuf.AsSpan();
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (prevcr)
+                {
+                    if (input[i] == LfValue)
+                    {
+                        // CRLF has come
+                        WriteNewline(output, nl, CrLf.AsSpan());
+                        off = i + 1;
+                        prevcr = false;
+                        continue;
+                    }
+                    else
+                    {
+                        // single CR has come
+                        WriteNewline(output, nl, Cr.AsSpan());
+                        prevcr = false;
+                    }
+                }
+                if (input[i] == CrValue)
+                {
+                    // CR has come, but cannot decide to CRLF or single CR,
+                    var sp = input.Slice(off, i - off);
+                    wspan = EncodeAndWriteStream(sp, output, wspan, nl, outputEncoding, ref wbuf);
+                    off = i + 1;
+                    prevcr = true;
+                }
+                else if (input[i] == LfValue)
+                {
+                    // single LF has come
+                    var sp = input.Slice(off, i - off);
+                    wspan = EncodeAndWriteStream(sp, output, wspan, nl, outputEncoding, ref wbuf);
+                    WriteNewline(output, nl, Lf.AsSpan());
+                    off = i + 1;
+                }
+            }
+            // write remaining buffer
+            if(off < input.Length)
+            {
+                var sp = input.Slice(off);
+                EncodeAndWriteStream(sp, output, wspan, nl, outputEncoding, ref wbuf);
+            }
+            return prevcr;
+        }
+        static Span<byte> EncodeAndWriteStream(ReadOnlySpan<char> sp, Stream output, Span<byte> wspan, Newline nl, Encoding outputEncoding, ref byte[] wbuf)
+        {
+            var wlen = outputEncoding.GetByteCount(sp);
+            if (wlen > wspan.Length)
+            {
+                wspan = Span<byte>.Empty;
+                ArrayPool<byte>.Shared.Return(wbuf);
+                wbuf = ArrayPool<byte>.Shared.Rent(wlen);
+                wspan = wbuf.AsSpan();
+            }
+            outputEncoding.GetBytes(sp, wspan);
+            var tmp = wspan.Slice(0, wlen);
+            output.Write(tmp);
+            return wspan;
         }
         static void WriteNewline(Stream stm, Newline nl, ReadOnlySpan<byte> defaultValue)
         {
@@ -85,133 +149,6 @@ namespace dotnet_text_encoder
                 default:
                     stm.Write(defaultValue);
                     break;
-            }
-        }
-        static bool WriteBytesToStream(Stream stm, ReadOnlyMemory<byte> mem, Newline nlid, bool prevcr)
-        {
-            var rsp = mem.Span;
-            for (int i = 0; i < rsp.Length; i++)
-            {
-                if (rsp[i] == CrValue)
-                {
-                    // CR has come, but cannot decide whether CRLR or CR + [another char]
-                    if (i != 0)
-                    {
-                        stm.Write(rsp.Slice(0, i));
-                    }
-                    rsp = rsp.Slice(i + 1);
-                    i = -1;
-                    prevcr = true;
-                }
-                else if (rsp[i] == LfValue)
-                {
-                    if (prevcr)
-                    {
-                        if (i != 0)
-                        {
-                            stm.Write(rsp.Slice(0, i));
-                        }
-                        // CRLF has come
-                        WriteNewline(stm, nlid, CrLf.AsSpan());
-                        rsp = rsp.Slice(i + 1);
-                        i = -1;
-                        prevcr = false;
-                    }
-                    else
-                    {
-                        // single LF has come
-                        if (i != 0)
-                        {
-                            stm.Write(rsp.Slice(0, i));
-                        }
-                        WriteNewline(stm, nlid, Lf.AsSpan());
-                        rsp = rsp.Slice(i + 1);
-                        i = -1;
-                    }
-                }
-                else
-                {
-                    if (prevcr)
-                    {
-                        // single CR has come
-                        WriteNewline(stm, nlid, Cr.AsSpan());
-                        prevcr = false;
-                        i--;
-                    }
-                }
-            }
-            // write remaining data
-            if (!rsp.IsEmpty)
-            {
-                stm.Write(rsp);
-            }
-            return prevcr;
-        }
-        public static async Task ConvertStreamAsync(Stream input, Encoding inputEncoding, Stream output, Encoding outputEncoding, bool noPreamble, Newline nl = Newline.None)
-        {
-            var pipe = new Pipe();
-            using (var sr = new StreamReader(input, inputEncoding))
-            {
-                await Task.WhenAll(
-                    Task.Run(async () =>
-                    {
-                        var buf = new char[4096];
-                        byte[] wbuf = ArrayPool<byte>.Shared.Rent(8192);
-                        Action<byte[], int, PipeWriter> wfunc = (data, length, pw) =>
-                        {
-                            var sp = pw.GetSpan(length);
-                            data.AsSpan(0, length).CopyTo(sp);
-                            pw.Advance(length);
-                        };
-                        while (true)
-                        {
-                            var charread = sr.Read(buf, 0, buf.Length);
-                            if (charread == 0)
-                            {
-                                break;
-                            }
-                            var wlen = outputEncoding.GetByteCount(buf, 0, charread);
-                            if (wlen > wbuf.Length)
-                            {
-                                ArrayPool<byte>.Shared.Return(wbuf);
-                                wbuf = ArrayPool<byte>.Shared.Rent(wlen);
-                            }
-                            wlen = outputEncoding.GetBytes(buf, 0, charread, wbuf, 0);
-                            wfunc(wbuf, wlen, pipe.Writer);
-                            await pipe.Writer.FlushAsync().ConfigureAwait(false);
-                        }
-                        pipe.Writer.Complete();
-                    }),
-                    Task.Run(async () =>
-                    {
-                        bool prevcr = false;
-                        bool first = true;
-                        while (true)
-                        {
-                            var readResult = await pipe.Reader.ReadAsync().ConfigureAwait(false);
-                            if (!readResult.Buffer.IsEmpty)
-                            {
-                                if (first && !noPreamble)
-                                {
-                                    var pre = outputEncoding.GetPreamble();
-                                    if (pre != null && pre.Length != 0)
-                                    {
-                                        output.Write(pre, 0, pre.Length);
-                                    }
-                                }
-                                first = false;
-                                foreach (var rbuf in readResult.Buffer)
-                                {
-                                    prevcr = WriteBytesToStream(output, rbuf, nl, prevcr);
-                                }
-                            }
-                            if (readResult.Buffer.IsEmpty && readResult.IsCompleted)
-                            {
-                                break;
-                            }
-                        }
-                    })
-                );
             }
         }
     }

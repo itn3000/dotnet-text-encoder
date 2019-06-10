@@ -109,6 +109,33 @@ namespace Dotnet.Text.Encoder.Test
             }
         }
         [Theory]
+        [InlineData("\r\n", "\r\n", Newline.None)]
+        [InlineData("\r\n", "\n", Newline.Lf)]
+        [InlineData("\r\n", "\r\n", Newline.Crlf)]
+        [InlineData("\r\n", "\r", Newline.Cr)]
+        [InlineData("\n", "\n", Newline.None)]
+        [InlineData("\n", "\n", Newline.Lf)]
+        [InlineData("\n", "\r\n", Newline.Crlf)]
+        [InlineData("\n", "\r", Newline.Cr)]
+        [InlineData("\r", "\r", Newline.None)]
+        [InlineData("\r", "\n", Newline.Lf)]
+        [InlineData("\r", "\r\n", Newline.Crlf)]
+        [InlineData("\r", "\r", Newline.Cr)]
+        public void CrLfConvertRepeat(string srcstr, string expectedstr, Newline nl)
+        {
+            var original = new string(Enumerable.Range(0, 1024).SelectMany(i => srcstr).ToArray());
+            var expected = new string(Enumerable.Range(0, 1024).SelectMany(i => expectedstr).ToArray());
+            var srcenc = Encoding.UTF8;
+            var destenc = Encoding.UTF8;
+            using(var instm = new MemoryStream(srcenc.GetBytes(original)))
+            using(var outstm = new MemoryStream())
+            {
+                dotnet_text_encoder.TextConverter.ConvertStream(instm, srcenc, outstm, destenc, true, nl);
+                var actual = destenc.GetString(outstm.ToArray());
+                Assert.Equal(expected, actual);
+            }
+        }
+        [Theory]
         [InlineData(Newline.Cr, "\n", "\r")]
         [InlineData(Newline.Crlf, "\n", "\r\n")]
         [InlineData(Newline.Lf, "\n", "\n")]

@@ -108,7 +108,7 @@ try get info by codepage number(range)
                     Preamble = enc.GetPreamble()
                 };
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return new EncodingTestResult()
                 {
