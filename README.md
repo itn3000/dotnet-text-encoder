@@ -99,7 +99,7 @@ After executing, executable files are place in `[installdir]`.
 
 # Release Notes
 
-## 1.0.0
+## 0.3.0
 
 * add `-e`(convert eol) option
 

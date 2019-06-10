@@ -32,40 +32,40 @@ namespace dotnet_text_encoder
         {
             using (var sr = new StreamReader(input, inputEncoding))
             {
-                var buf = new char[4096];
+                var buf = ArrayPool<char>.Shared.Rent(4096);
                 bool first = true;
                 var wbuf = ArrayPool<byte>.Shared.Rent(4096);
                 bool prevcr = false;
-                while (true)
+                try
                 {
-                    var charread = sr.Read(buf, 0, buf.Length);
-                    if (charread == 0)
+                    while (true)
                     {
-                        break;
-                    }
-                    if (first && !noPreamble)
-                    {
-                        var pre = outputEncoding.GetPreamble();
-                        if (pre != null && pre.Length != 0)
+                        var charread = sr.Read(buf, 0, buf.Length);
+                        if (charread == 0)
                         {
-                            output.Write(pre, 0, pre.Length);
+                            break;
                         }
+                        if (first && !noPreamble)
+                        {
+                            var pre = outputEncoding.GetPreamble();
+                            if (pre != null && pre.Length != 0)
+                            {
+                                output.Write(pre, 0, pre.Length);
+                            }
+                        }
+                        first = false;
+                        prevcr = WriteBytesToStream(output, buf.AsSpan(0, charread), nl, prevcr, outputEncoding, ref wbuf);
                     }
-                    first = false;
-                    var wlen = outputEncoding.GetByteCount(buf, 0, charread);
-                    if (wlen > wbuf.Length)
+                    if (prevcr)
                     {
-                        ArrayPool<byte>.Shared.Return(wbuf);
-                        wbuf = ArrayPool<byte>.Shared.Rent(wlen);
+                        // treat last cr
+                        WriteNewline(output, nl, Cr.AsSpan());
                     }
-                    // outputEncoding.GetBytes(buf, 0, charread, wbuf, 0);
-                    outputEncoding.GetBytes(buf.AsSpan(0, charread), wbuf.AsSpan());
-                    prevcr = WriteBytesToStream(output, buf.AsSpan(0, charread), nl, prevcr, outputEncoding, ref wbuf);
                 }
-                if (prevcr)
+                finally
                 {
-                    // treat last cr
-                    WriteNewline(output, nl, Cr.AsSpan());
+                    ArrayPool<char>.Shared.Return(buf);
+                    ArrayPool<byte>.Shared.Return(wbuf);
                 }
             }
         }
@@ -110,7 +110,7 @@ namespace dotnet_text_encoder
                 }
             }
             // write remaining buffer
-            if(off < input.Length)
+            if (off < input.Length)
             {
                 var sp = input.Slice(off);
                 EncodeAndWriteStream(sp, output, wspan, nl, outputEncoding, ref wbuf);
