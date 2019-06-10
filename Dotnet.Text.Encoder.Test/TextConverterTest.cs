@@ -17,6 +17,8 @@ namespace Dotnet.Text.Encoder.Test
         [InlineData("utf-8", "shift_jis")]
         [InlineData("shift_jis", "utf-8")]
         [InlineData("932", "65001")]
+        [InlineData("utf-8", "utf-16")]
+        [InlineData("utf-16", "utf-8")]
         public void LongString(string srcEncoding, string destEncoding)
         {
             var srcstr = new string(Enumerable.Range(0, 10240).Select(x => 'あ').ToArray());
@@ -125,7 +127,7 @@ namespace Dotnet.Text.Encoder.Test
         {
             var original = new string(Enumerable.Range(0, 1024).SelectMany(i => srcstr).ToArray());
             var expected = new string(Enumerable.Range(0, 1024).SelectMany(i => expectedstr).ToArray());
-            var srcenc = Encoding.UTF8;
+            var srcenc = Encoding.Unicode;
             var destenc = Encoding.UTF8;
             using(var instm = new MemoryStream(srcenc.GetBytes(original)))
             using(var outstm = new MemoryStream())
