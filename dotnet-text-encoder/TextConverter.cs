@@ -3,7 +3,6 @@ using System.Text;
 using System.IO;
 using System.Buffers;
 using System.Threading.Tasks;
-using System.IO.Pipelines;
 
 namespace dotnet_text_encoder
 {
