@@ -17,7 +17,6 @@ namespace dotnet_text_encoder
         Lf,
     }
     [Command(ExtendedHelpText = @"
-changing text encoding
 Examples:
 input utf-8,output shift_jis(cp932) by name:
   dotnet tenc -f utf-8 -t shift_jis -i utf8.txt -o sjis.txt
@@ -25,10 +24,12 @@ input utf-8,output shift_jis(cp932) by code page
   dotnet tenc -f 65001 -t 932 -i utf8.txt -o sjis.txt
 input utf-8,output utf-8 without BOM(BOM added by default)
   dotnet tenc -f utf-8 -t shift_jis -i utf8.txt -o sjis.txt -n
+input utf-8,output utf-8 convert eol to LF(and no BOM)
+  dotnet tenc -f utf-8 -t utf-8 -e lf -i utf8.txt -o utf8-lf.txt -n
 ")]
     [Subcommand(typeof(EncodingInfoGetter))]
     [Subcommand(typeof(OverwriteCommand))]
-    [VersionOption("dotnet-tenc 0.3.0")]
+    [VersionOption("dotnet-tenc 1.0.0")]
     class Options
     {
         [Option("-f|--from", "input file encoding(default: UTF-8)", CommandOptionType.SingleValue)]

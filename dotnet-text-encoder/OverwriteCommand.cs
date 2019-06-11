@@ -12,7 +12,15 @@ using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
 
 namespace dotnet_text_encoder
 {
-    [Command("overwrite", "ow", Description = "convert files with overwrite mode")]
+    [Command("overwrite", "ow", Description = "convert files with overwrite mode", ExtendedHelpText = @"
+Examples:
+all files that have '.txt' extension are targeted.
+  dotnet tenc ow -f utf-8 -t utf-8 -e lf **/*.txt
+all files that have '.txt' extension under the 'targetdir' are targeted.
+  dotnet tenc ow -f utf-8 -t utf-8 -e lf **/*.txt -b targetdir
+all files that have '.txt' extension are targeted,excluding under the 'sub' directory
+  dotnet tenc ow -f utf-8 -t utf-8 -e lf **/*.txt -x sub/**/*
+")]
     [HelpOption]
     class OverwriteCommand
     {

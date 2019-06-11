@@ -86,6 +86,38 @@ Name,CodePage,Found,DisplayName,Preamble
 utf-8,65001,True,Unicode (UTF-8),efbbbf
 ```
 
+## run overwrite mode
+
+since 1.0.0, `overwrite`(in short, `ow`) subcommand added.
+Here is the help text:
+
+```
+convert files with overwrite mode
+
+Usage: dotnet-tenc overwrite [options] <Targets>
+
+Arguments:
+  Targets           target files, you can use globbing(*.txt, **/*.cs)
+
+Options:
+  -?|-h|--help      Show help information
+  -f|--from         input file encoding(default: UTF-8)
+  -t|--to           output file encoding(default: UTF-8)
+  -b|--base         search base directory(default: current directory)
+  -i|--ignore-case  search file with case insensitive
+  -n|--no-preamble  disable output preamble(=BOM) if exists
+  -e|--eol          converting end of line(cr,crlf,lf,none: default=none)
+  -x|--exclude      file exclude pattern, you can use globbing
+
+Examples:
+all files that have '.txt' extension are targeted.
+  dotnet tenc ow -f utf-8 -t utf-8 -e lf **/*.txt
+all files that have '.txt' extension under the 'targetdir' are targeted.
+  dotnet tenc ow -f utf-8 -t utf-8 -e lf **/*.txt -b targetdir
+all files that have '.txt' extension are targeted,excluding under the 'sub' directory
+  dotnet tenc ow -f utf-8 -t utf-8 -e lf **/*.txt -x sub/**/*
+```
+
 # Build
 
 1. run `dotnet build` to build binary
@@ -98,6 +130,10 @@ you can test local nuget package by following command.
 After executing, executable files are place in `[installdir]`.
 
 # Release Notes
+
+## 1.0.0
+
+* add `overwrite` subcommand
 
 ## 0.3.0
 
