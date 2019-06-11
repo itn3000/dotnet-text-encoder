@@ -3,6 +3,9 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using McMaster.Extensions.CommandLineUtils;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace dotnet_text_encoder
 {
@@ -24,6 +27,7 @@ input utf-8,output utf-8 without BOM(BOM added by default)
   dotnet tenc -f utf-8 -t shift_jis -i utf8.txt -o sjis.txt -n
 ")]
     [Subcommand(typeof(EncodingInfoGetter))]
+    [Subcommand(typeof(OverwriteCommand))]
     [VersionOption("dotnet-tenc 0.3.0")]
     class Options
     {
@@ -89,8 +93,19 @@ input utf-8,output utf-8 without BOM(BOM added by default)
         static void Main(string[] args)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            var ret = CommandLineApplication.Execute<Options>(args);
-            Environment.ExitCode = ret;
+            var config = new ConfigurationBuilder()
+                .AddEnvironmentVariables("TENC_")
+                .Build();
+            var services = new ServiceCollection();
+            services.AddLogging(log => log.AddConfiguration(config.GetSection("Logging")).AddConsole());
+            using (var provider = services.BuildServiceProvider())
+            {
+                var app = new CommandLineApplication<Options>();
+                app.Conventions.UseDefaultConventions()
+                    .UseConstructorInjection(provider);
+                var ret = app.Execute(args);
+                Environment.ExitCode = ret;
+            }
         }
     }
 }
