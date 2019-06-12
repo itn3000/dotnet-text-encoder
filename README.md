@@ -51,6 +51,17 @@ input utf-8,output utf-8 without BOM(BOM added by default)
   dotnet tenc -f utf-8 -t shift_jis -i utf8.txt -o sjis.txt -n
 ```
 
+### Powershell Warning
+
+Because of powershell spec, using pipeline may cause garbling.
+```
+dotnet tenc -i some.txt -f utf-8 -t euc-jp > out.txt
+```
+To avoid this, you should use `-o` option.
+```
+dotnet tenc -i some.txt -f utf-8 -t euc-jp -o out.txt
+```
+
 ## Getting encoding info
 
 Since 0.2.0, `getinfo` subcommand is added.
