@@ -45,6 +45,7 @@ steps:
       arguments: "-c Release -p:WithCoreRT=true -p:RuntimeIdentifier=$(rid)"
       buildProperties: "WithCoreRT=true;RuntimeIdentifier=$(rid)"
       projects: "dotnet-text-encoder/dotnet-text-encoder.csproj"
+      publishWebProjects: false
   - task: CopyFiles@2
     name: "copying_native_file"
     inputs:
