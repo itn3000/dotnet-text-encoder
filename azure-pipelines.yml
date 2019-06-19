@@ -1,0 +1,52 @@
+strategy:
+  matrix:
+    linux:
+      imageName: 'ubuntu-18.04'
+      rid: "linux-x64"
+    mac:
+      imageName: 'macos-10.13'
+      rid: "osx-x64"
+    windows:
+      imageName: 'VS2019-win2016'
+      rid: "win-x64"
+
+pool:
+  vmImage: $(imageName)
+
+steps:
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'restore'
+      projects: "dotnet-encoding.sln"
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: "build"
+      configuration: "release"
+      projects: "dotnet-encoding.sln"
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: "test"
+      configuration: "Release"
+      projects: "dotnet-encoding.sln"
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: "pack"
+      configuration: "release"
+      packagesToPack: "dotnet-text-encoder/dotnet-text-encoder.csproj"
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: "publish"
+      configuration: "release"
+      buildProperties: "WithCoreRT=true;RuntimeIdentifier=$(rid)"
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder: "$(Build.SourceDirectory)/dotnet-text-encoder/bin/Release/netcoreapp2.1/$(rid)/native"
+      contents: "*"
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder: "$(Build.SourceDirectory)/dotnet-text-encoder/bin/Release"
+      contents: "**/*.nupkg"
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathToPublish: "$(Build.ArtifactStagingDirectory)"
+      artifactName: "dotnet-tenc-$(rid)"
