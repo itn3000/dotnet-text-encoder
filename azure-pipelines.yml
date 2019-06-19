@@ -40,8 +40,9 @@ steps:
   - task: DotNetCoreCLI@2
     name: "publish_project"
     inputs:
-      command: "publish"
-      configuration: "release"
+      command: "custom"
+      custom: "publish"
+      arguments: "-c Release -p:WithCoreRT=true -p:RuntimeIdentifier=$(rid)"
       buildProperties: "WithCoreRT=true;RuntimeIdentifier=$(rid)"
       projects: "dotnet-text-encoder/dotnet-text-encoder.csproj"
   - task: CopyFiles@2
