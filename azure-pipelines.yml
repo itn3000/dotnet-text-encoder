@@ -12,7 +12,7 @@ strategy:
       imageName: 'vs2017-win2016'
       rid: "win-x64"
       PLATFORMLINKER: ""
-variable:
+variables:
   - name: CppCompilerAndLinker
     value: "$(PLATFORMLINKER)"
 pool:
