@@ -3,13 +3,18 @@ strategy:
     linux:
       imageName: 'ubuntu-16.04'
       rid: "linux-x64"
+      PLATFORMLINKER: "clang-6.0"
     mac:
       imageName: 'macos-10.13'
       rid: "osx-x64"
+      PLATFORMLINKER: ""
     windows:
       imageName: 'vs2017-win2016'
       rid: "win-x64"
-
+      PLATFORMLINKER: ""
+variable:
+  - name: CppCompilerAndLinker
+    value: "$(PLATFORMLINKER)"
 pool:
   vmImage: $(imageName)
 
@@ -48,12 +53,12 @@ steps:
   - task: CopyFiles@2
     name: "copying_native_file"
     inputs:
-      sourceFolder: "$(Build.SourceDirectory)/dotnet-text-encoder/bin/Release/netcoreapp2.1/$(rid)/native"
-      contents: "*"
+      sourceFolder: "dotnet-text-encoder/bin/Release"
+      contents: "**/native/*"
   - task: CopyFiles@2
     name: "copying_nupkg"
     inputs:
-      sourceFolder: "$(Build.SourceDirectory)/dotnet-text-encoder/bin/Release"
+      sourceFolder: "dotnet-text-encoder/bin/Release"
       contents: "**/*.nupkg"
   - task: PublishBuildArtifacts@1
     name: "publishing_artifacts"
