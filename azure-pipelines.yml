@@ -19,6 +19,11 @@ pool:
   vmImage: $(imageName)
 
 steps:
+  - script: |
+      apt-get update
+      apt-get install -y libkrb5-dev
+    condition: "$(imageName) eq 'ubuntu-16.04'"
+    name: "install_packages"
   - task: DotNetCoreCLI@2
     name: "restore_solution"
     inputs:
