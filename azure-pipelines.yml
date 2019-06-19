@@ -15,7 +15,7 @@ pool:
 
 steps:
   - task: DotNetCoreCLI@2
-    name: "restore solution"
+    name: "restore-solution"
     inputs:
       command: 'restore'
       projects: "dotnet-encoding.sln"
@@ -26,36 +26,36 @@ steps:
       configuration: "release"
       projects: "dotnet-encoding.sln"
   - task: DotNetCoreCLI@2
-    name: "test solution"
+    name: "test-solution"
     inputs:
       command: "test"
       configuration: "Release"
       projects: "dotnet-encoding.sln"
   - task: DotNetCoreCLI@2
-    name: "pack solution"
+    name: "pack-solution"
     inputs:
       command: "pack"
       configuration: "release"
       packagesToPack: "dotnet-text-encoder/dotnet-text-encoder.csproj"
   - task: DotNetCoreCLI@2
-    name: "publish project as single file binary"
+    name: "publish-project"
     inputs:
       command: "publish"
       configuration: "release"
       buildProperties: "WithCoreRT=true;RuntimeIdentifier=$(rid)"
       projects: "dotnet-text-encoder/dotnet-text-encoder.csproj"
   - task: CopyFiles@2
-    name: "copying native file"
+    name: "copying-native-file"
     inputs:
       sourceFolder: "$(Build.SourceDirectory)/dotnet-text-encoder/bin/Release/netcoreapp2.1/$(rid)/native"
       contents: "*"
   - task: CopyFiles@2
-    name: "copying nupkg"
+    name: "copying-nupkg"
     inputs:
       sourceFolder: "$(Build.SourceDirectory)/dotnet-text-encoder/bin/Release"
       contents: "**/*.nupkg"
   - task: PublishBuildArtifacts@1
-    name: "publishing artifacts"
+    name: "publishing-artifacts"
     inputs:
       pathToPublish: "$(Build.ArtifactStagingDirectory)"
       artifactName: "dotnet-tenc-$(rid)"
