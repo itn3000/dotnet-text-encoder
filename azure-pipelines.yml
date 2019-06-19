@@ -42,8 +42,7 @@ steps:
     inputs:
       command: "custom"
       custom: "publish"
-      arguments: "-c Release -p:WithCoreRT=true -p:RuntimeIdentifier=$(rid)"
-      buildProperties: "WithCoreRT=true;RuntimeIdentifier=$(rid)"
+      arguments: "-c Release -p:WithCoreRT=true -p:RuntimeIdentifier=$(rid) -p:PackAsTool=false"
       projects: "dotnet-text-encoder/dotnet-text-encoder.csproj"
       publishWebProjects: false
   - task: CopyFiles@2
