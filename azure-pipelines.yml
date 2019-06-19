@@ -50,7 +50,7 @@ steps:
       sourceFolder: "$(Build.SourceDirectory)/dotnet-text-encoder/bin/Release/netcoreapp2.1/$(rid)/native"
       contents: "*"
   - task: CopyFiles@2
-    name: "copying-nupkg"
+    name: "copying_nupkg"
     inputs:
       sourceFolder: "$(Build.SourceDirectory)/dotnet-text-encoder/bin/Release"
       contents: "**/*.nupkg"
