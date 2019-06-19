@@ -29,7 +29,8 @@ input utf-8,output utf-8 convert eol to LF(and no BOM)
 ")]
     [Subcommand(typeof(EncodingInfoGetter))]
     [Subcommand(typeof(OverwriteCommand))]
-    [VersionOption("dotnet-tenc 1.0.0")]
+    // [VersionOption("dotnet-tenc 1.0.0")]
+    [VersionOptionFromMember(MemberName = "VersionString")]
     class Options
     {
         [Option("-f|--from", "input file encoding(default: UTF-8)", CommandOptionType.SingleValue)]
@@ -43,7 +44,39 @@ input utf-8,output utf-8 convert eol to LF(and no BOM)
         [Option("-n|--no-preamble", "disable output preamble(=BOM) if exists", CommandOptionType.NoValue)]
         public bool NoPreamble { get; set; }
         [Option("-e|--eol", "converting end of line(cr,crlf,lf,none: default=none)", CommandOptionType.SingleValue)]
-        public Newline Newline { get; set; }
+        public string NewlineString { get; set; }
+        Newline _newline;
+        bool _setNewline = false;
+        public Newline Newline 
+        {
+            get
+            {
+                if(!_setNewline)
+                {
+                    if(!string.IsNullOrEmpty(NewlineString))
+                    {
+                        if(!Newline.TryParse(NewlineString, out _newline))
+                        {
+                            _newline = Newline.None;
+                        }
+                    }
+                    else
+                    {
+                        _newline = Newline.None;
+                    }
+                    _setNewline = true;
+                }
+                return _newline;
+            }
+        }
+        public static string VersionString
+        {
+            get
+            {
+                var asmname = typeof(Program).Assembly.GetName();
+                return $"{asmname.Name} {asmname.Version}";
+            }
+        }
         public int OnExecute()
         {
             try
