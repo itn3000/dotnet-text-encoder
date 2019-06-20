@@ -75,7 +75,7 @@ steps:
   - task: GitHubRelease@0
     name: "publishing_github_release"
     inputs:
-      gitHubConnection: itn3000
+      gitHubConnection: dotnet-text-encoder-github
       isDraft: true
     condition: "startsWith(variables['Build.SourceBranch'], 'refs/tags/')"
   - task: NuGetCommand@2
