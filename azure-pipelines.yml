@@ -63,7 +63,7 @@ steps:
     inputs:
       targetType: inline
       script: |
-        bin/Release/netcoreapp2.1/$(rid)/native/dotnet-tenc$(ExE_FILE_EXT) getinfo -c 0-100
+        dotnet-text-encoder/bin/Release/netcoreapp2.1/$(rid)/native/dotnet-tenc$(ExE_FILE_EXT) getinfo -c 0-100
   - task: CopyFiles@2
     name: "copying_native_file"
     inputs:
