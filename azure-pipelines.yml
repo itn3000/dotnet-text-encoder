@@ -78,14 +78,14 @@ steps:
       gitHubConnection: itn3000
       isDraft: true
     condition: "startsWith(variables['Build.SourceBranch'], 'refs/tags/')"
-  - task: DotNetCore@2
+  - task: NuGetCommand@2
     name: "publishing_nuget"
     inputs:
       command: push
       feedsToUse: select
       allowPackageConflicts: true
+      publishFeedCredentials: dotnet-text-encoder-nuget
       packagesToPush: "$(Build.ArtifactStagingDirectory)/**/*.nupkg"
       nuGetFeedType: external
-      vstsFeed: dotnet-text-encoder-nuget
     condition: "and(startsWith(variables['Build.SourceBranch'], 'refs/tags/'), eq(variables['imageName'],'vs2017-win2016'))"
 
