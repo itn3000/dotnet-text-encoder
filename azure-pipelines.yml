@@ -68,12 +68,12 @@ steps:
       script: |
         mv $(Build.ArtifactStagingDirectory)/netcoreapp2.1/$(rid)/native/dotnet-tenc $(Build.ArtifactStagingDirectory)/netcoreapp2.1/$(rid)/native/dotnet-tenc-$(rid)
     condition: "or(eq(variables['rid'], 'linux-x64'), eq(variables['rid'], 'osx-x64'))"
-  - task: Bash@3
+  - task: Powershell@2
     name: "rename_native_file_win"
     inputs:
       targetType: inline
       script: |
-        mv $(Build.ArtifactStagingDirectory)/netcoreapp2.1/$(rid)/native/dotnet-tenc.exe $(Build.ArtifactStagingDirectory)/netcoreapp2.1/$(rid)/native/dotnet-tenc-$(rid).exe
+        Move-Item $(Build.ArtifactStagingDirectory)/netcoreapp2.1/$(rid)/native/dotnet-tenc.exe $(Build.ArtifactStagingDirectory)/netcoreapp2.1/$(rid)/native/dotnet-tenc-$(rid).exe
     condition: "eq(variables['rid'], 'win-x64')"
   - task: CopyFiles@2
     name: "copying_nupkg"
