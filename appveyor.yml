@@ -9,12 +9,12 @@ environment:
 configuration: Release
 install:
   - pwsh: >-
-    if($env:APPVEYOR_BUILD_WORKER_IMAGE -ieq "Ubuntu1804") { apt-get install -y libkrb5-dev }
+    if($env:APPVEYOR_BUILD_WORKER_IMAGE -ieq "Ubuntu1804") { apt-get install -y libkrb5-dev };
 
     dotnet restore
 build:
   - pwsh: >-
-    dotnet build -c Release
+    dotnet build -c Release;
 
     dotnet publish -c Release -p:WithCoreRT=true -r $(DOTNET_RID)
 artifacts:
