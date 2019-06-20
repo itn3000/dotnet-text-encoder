@@ -4,14 +4,17 @@ strategy:
       imageName: 'ubuntu-16.04'
       rid: "linux-x64"
       PLATFORMLINKER: "clang-6.0"
+      ExE_FILE_ExT: ""
     mac:
       imageName: 'macos-10.13'
       rid: "osx-x64"
       PLATFORMLINKER: ""
+      ExE_FILE_ExT: ""
     windows:
       imageName: 'vs2017-win2016'
       rid: "win-x64"
       PLATFORMLINKER: ""
+      ExE_FILE_ExT: ".exe"
 variables:
   - name: CppCompilerAndLinker
     value: "$(PLATFORMLINKER)"
@@ -66,14 +69,21 @@ steps:
     inputs:
       targetType: inline
       script: |
-        mv $(Build.ArtifactStagingDirectory)/netcoreapp2.1/$(rid)/native/dotnet-tenc $(Build.ArtifactStagingDirectory)/netcoreapp2.1/$(rid)/native/dotnet-tenc-$(rid)
+        mv $(Build.ArtifactStagingDirectory)/netcoreapp2.1/$(rid)/native/dotnet-tenc$(EXE_FILE_ExT) $(Build.ArtifactStagingDirectory)/netcoreapp2.1/$(rid)/native/dotnet-tenc-$(rid)$(EXE_FILE_EXT)
     condition: "or(eq(variables['rid'], 'linux-x64'), eq(variables['rid'], 'osx-x64'))"
+  - task: Bash@3
+    name: "strip_native_file_linux"
+    inputs:
+      targetType: inline
+      script: |
+        strip $(Build.ArtifactStagingDirectory)/netcoreapp2.1/$(rid)/native/dotnet-tenc-$(rid)$(EXE_FILE_EXT)
+    condition: "eq(variables['rid'], 'linux-x64')"
   - task: Powershell@2
     name: "rename_native_file_win"
     inputs:
       targetType: inline
       script: |
-        Move-Item $(Build.ArtifactStagingDirectory)/netcoreapp2.1/$(rid)/native/dotnet-tenc.exe $(Build.ArtifactStagingDirectory)/netcoreapp2.1/$(rid)/native/dotnet-tenc-$(rid).exe
+        Move-Item $(Build.ArtifactStagingDirectory)/netcoreapp2.1/$(rid)/native/dotnet-tenc$(ExE_FILE_ExT) $(Build.ArtifactStagingDirectory)/netcoreapp2.1/$(rid)/native/dotnet-tenc-$(rid)$(ExE_FILE_ExT)
     condition: "eq(variables['rid'], 'win-x64')"
   - task: CopyFiles@2
     name: "copying_nupkg"
