@@ -142,6 +142,10 @@ After executing, executable files are place in `[installdir]`.
 
 # Release Notes
 
+## 1.0.1
+
+* add native file to release
+
 ## 1.0.0
 
 * add `overwrite` subcommand
