@@ -76,7 +76,10 @@ steps:
     name: "publishing_github_release"
     inputs:
       gitHubConnection: dotnet-text-encoder-github
+      action: create
       isDraft: true
+      tagSource: auto
+      assets: "**/native/*"
     condition: "startsWith(variables['Build.SourceBranch'], 'refs/tags/')"
   - task: NuGetCommand@2
     name: "publishing_nuget"
