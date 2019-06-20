@@ -77,7 +77,7 @@ steps:
     inputs:
       gitHubConnection: itn3000
       isDraft: true
-    condition: "startsWith($(Build.SourceBranch), 'refs/tags/')"
+    condition: "startsWith(variables['Build.SourceBranch'], 'refs/tags/')"
   - task: DotNetCore@2
     name: "publishing_nuget"
     inputs:
