@@ -1,23 +1,3 @@
 version: 1.0.{build}
-image: Visual Studio 2019 Preview
 configuration: Release
-install:
-  - pwsh: dotnet restore
-build:
-  publish_nuget: true
-  publish_nuget_symbols: true
-  publish_core_console: true
-nuget:
-  project_feed: true
-deploy:
-  - provider: NuGet
-    api_key:
-      secure: "cBhFGxYbVqaS/5heofXfit4pryhFzSS5RDsvo50QUAS8G4QP3MQR+QAZpFJAT44w"
-    on:
-      APPVEYOR_REPO_TAG: true
-  - provider: GitHub
-    auth_token:
-      secure: "9DHwliLiN7wl/1qx1UYppunL9W78gl+EI8Wu+ISPOLp84bgTyrSME4go+Xz384NT"
-    draft: true
-    on:
-      APPVEYOR_REPO_TAG: true
+build: off

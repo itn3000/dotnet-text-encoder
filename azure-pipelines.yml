@@ -58,6 +58,12 @@ steps:
       arguments: "-c Release -p:WithCoreRT=true -p:RuntimeIdentifier=$(rid) -p:PackAsTool=false"
       projects: "dotnet-text-encoder/dotnet-text-encoder.csproj"
       publishWebProjects: false
+  - task: Bash@3
+    name: "test_native_file_execution"
+    inputs:
+      targetType: inline
+      script: |
+        dotnet-text-encoder/bin/Release/netcoreapp2.1/$(rid)/native/dotnet-tenc$(ExE_FILE_EXT) getinfo -c 0-100
   - task: CopyFiles@2
     name: "copying_native_file"
     inputs:

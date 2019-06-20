@@ -36,7 +36,31 @@ all files that have '.txt' extension are targeted,excluding under the 'sub' dire
         [Option("-n|--no-preamble", "disable output preamble(=BOM) if exists", CommandOptionType.NoValue)]
         public bool NoPreamble { get; set; }
         [Option("-e|--eol", "converting end of line(cr,crlf,lf,none: default=none)", CommandOptionType.SingleValue)]
-        public Newline Newline { get; set; }
+        public string NewlineString { get; set; }
+        Newline _newline;
+        bool _setNewline = false;
+        public Newline Newline 
+        {
+            get
+            {
+                if(!_setNewline)
+                {
+                    if(!string.IsNullOrEmpty(NewlineString))
+                    {
+                        if(!Newline.TryParse(NewlineString, out _newline))
+                        {
+                            _newline = Newline.None;
+                        }
+                    }
+                    else
+                    {
+                        _newline = Newline.None;
+                    }
+                    _setNewline = true;
+                }
+                return _newline;
+            }
+        }
         [Option("-x|--exclude", "file exclude pattern, you can use globbing", CommandOptionType.MultipleValue)]
         public string[] Exclude { get; set; }
         public OverwriteCommand(ILoggerFactory loggerFactory, IConsole console)
