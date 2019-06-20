@@ -86,23 +86,3 @@ steps:
     inputs:
       pathToPublish: "$(Build.ArtifactStagingDirectory)"
       artifactName: "dotnet-tenc-$(rid)"
-  - task: GitHubRelease@0
-    name: "publishing_github_release"
-    inputs:
-      gitHubConnection: dotnet-text-encoder-github
-      action: create
-      isDraft: true
-      tagSource: auto
-      assets: "$(Build.ArtifactStagingDirectory)/**/native/*"
-    condition: "startsWith(variables['Build.SourceBranch'], 'refs/tags/')"
-  - task: NuGetCommand@2
-    name: "publishing_nuget"
-    inputs:
-      command: push
-      feedsToUse: select
-      allowPackageConflicts: true
-      publishFeedCredentials: dotnet-text-encoder-nuget
-      packagesToPush: "$(Build.ArtifactStagingDirectory)/**/*.nupkg"
-      nuGetFeedType: external
-    condition: "and(startsWith(variables['Build.SourceBranch'], 'refs/tags/'), eq(variables['imageName'],'vs2017-win2016'))"
-
