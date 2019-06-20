@@ -1,39 +1,4 @@
 version: 1.0.{build}
-environment:
-  matrix:
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019 Preview
-      DOTNET_RID: win-x64
-    - APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
-      CppCompilerAndLinker: "clang-6.0"
-      DOTNET_RID: linux-x64
 configuration: Release
-install:
-  - pwsh: >-
-      if($env:APPVEYOR_BUILD_WORKER_IMAGE -ieq "Ubuntu1804") { apt-get install -y libkrb5-dev };
-
-      dotnet restore
-build_script:
-  - pwsh: >-
-      dotnet build -c Release;
-
-      dotnet publish -c Release -p:WithCoreRT=true -r $(DOTNET_RID)
-artifacts:
-  - path: dotnet-text-encoder/bin/Release/**/native/*
-    name: SingleBinary
-  - path: '**/*.nupkg'
-    name: NuGetPackages
-
-nuget:
-  project_feed: true
-deploy:
-  - provider: NuGet
-    api_key:
-      secure: "cBhFGxYbVqaS/5heofXfit4pryhFzSS5RDsvo50QUAS8G4QP3MQR+QAZpFJAT44w"
-    on:
-      APPVEYOR_REPO_TAG: true
-  - provider: GitHub
-    auth_token:
-      secure: "9DHwliLiN7wl/1qx1UYppunL9W78gl+EI8Wu+ISPOLp84bgTyrSME4go+Xz384NT"
-    draft: true
-    on:
-      APPVEYOR_REPO_TAG: true
+install: off
+build: off
