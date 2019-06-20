@@ -1,3 +1,8 @@
+trigger:
+  branches:
+    include:
+      - refs/tags/*
+      - "*"
 strategy:
   matrix:
     linux:
