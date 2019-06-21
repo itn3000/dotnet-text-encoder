@@ -154,7 +154,7 @@ if you are trying to build on ubuntu, you must install following.
 |platform|needed|
 |--------|------|
 |ubuntu  |clang,libkrb5-dev|
-|osx     |clang|
+|osx     |clang,xcode|
 |windows |visual studio 2017 or later|
 
 ### Building
