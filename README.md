@@ -140,6 +140,26 @@ you can test local nuget package by following command.
 
 After executing, executable files are place in `[installdir]`.
 
+## Build Native Binary
+
+### Prerequisits
+
+if you are trying to build on ubuntu, you must install following.
+
+|platform|needed|
+|--------|------|
+|ubuntu  |clang,libkrb5-dev|
+|osx     |clang|
+|windows |visual studio 2017 or later|
+
+### Building
+
+run `dotnet publish -c [Debug or Release] -p:WithCoreRT=true -p:PackAsTool=false -r [rid]`.
+and the native binary will be created in `dotnet-text-encoder/bin/[Debug or Release]/netcoreapp2.1/[rid]/native/`
+
+available rids are listed in [Microsoft's official document](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog).
+**Warning: currently, cross compiling is not supported, so OS part of rid should be same as build machine platform**
+
 # Release Notes
 
 ## 1.0.1
