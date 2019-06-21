@@ -15,6 +15,11 @@ dotnet global tool for changing text encoding.
 
 and then you can execute command by `dotnet tenc` or `dotnet-tenc`
 
+## Use native binary
+
+you can use this tool without dotnet-SDK by native binary.
+binaries can be found in [release page](https://github.com/itn3000/dotnet-text-encoder/releases)
+
 # Usage
 
 ## Basic Usage
