@@ -157,6 +157,12 @@ if you are trying to build on ubuntu, you must install following.
 run `dotnet publish -c [Debug or Release] -p:WithCoreRT=true -p:PackAsTool=false -r [rid]`.
 and the native binary will be created in `dotnet-text-encoder/bin/[Debug or Release]/netcoreapp2.1/[rid]/native/`
 
+if you get following error message about clang, you can avoid this error by setting `CppCompilerAndLinker=[clang command]` to environment variable.
+
+```
+error : Platform linker ('clang-3.9') not found. Try installing clang-3.9 or the appropriate package for your platform to resolve the problem.
+```
+
 available rids are listed in [Microsoft's official document](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog).
 **Warning: currently, cross compiling is not supported, so OS part of rid should be same as build machine platform**
 
