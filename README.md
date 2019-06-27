@@ -118,6 +118,7 @@ Options:
   -i|--ignore-case  search file with case insensitive
   -n|--no-preamble  disable output preamble(=BOM) if exists
   -e|--eol          converting end of line(cr,crlf,lf,none: default=none)
+  --dry-run         do not convert file
   -x|--exclude      file exclude pattern, you can use globbing
 
 Examples:
@@ -141,6 +142,10 @@ you can test local nuget package by following command.
 After executing, executable files are place in `[installdir]`.
 
 # Release Notes
+
+## 1.1.0
+
+* add `--dry-run` option
 
 ## 1.0.1
 

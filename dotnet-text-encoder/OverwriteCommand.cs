@@ -37,17 +37,19 @@ all files that have '.txt' extension are targeted,excluding under the 'sub' dire
         public bool NoPreamble { get; set; }
         [Option("-e|--eol", "converting end of line(cr,crlf,lf,none: default=none)", CommandOptionType.SingleValue)]
         public string NewlineString { get; set; }
+        [Option("--dry-run", "do not convert file", CommandOptionType.NoValue)]
+        public bool DryRun { get; set; }
         Newline _newline;
         bool _setNewline = false;
-        public Newline Newline 
+        public Newline Newline
         {
             get
             {
-                if(!_setNewline)
+                if (!_setNewline)
                 {
-                    if(!string.IsNullOrEmpty(NewlineString))
+                    if (!string.IsNullOrEmpty(NewlineString))
                     {
-                        if(!Newline.TryParse(NewlineString, out _newline))
+                        if (!Newline.TryParse(NewlineString, out _newline))
                         {
                             _newline = Newline.None;
                         }
@@ -87,7 +89,7 @@ all files that have '.txt' extension are targeted,excluding under the 'sub' dire
                 var toenc = TextConverter.GetEncodingFromString(ToEncoding);
                 var matcher = new Matcher(StringComparison.CurrentCultureIgnoreCase);
                 matcher.AddIncludePatterns(Targets);
-                if(Exclude != null && Exclude.Length != 0)
+                if (Exclude != null && Exclude.Length != 0)
                 {
                     matcher.AddExcludePatterns(Exclude);
                 }
@@ -101,6 +103,15 @@ all files that have '.txt' extension are targeted,excluding under the 'sub' dire
                 _Logger.LogDebug("converting {0} to {1}, newline = {2}, no preamble = {3}", fromenc.WebName, toenc.WebName, Newline, NoPreamble);
                 foreach (var fpath in result.Files.Select(x => x.Path))
                 {
+                    if (DryRun)
+                    {
+                        Console.WriteLine($"replacing file(dryrun): {fpath}");
+                        continue;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"replacing file: {fpath}");
+                    }
                     DoEncoding(Path.Combine(baseDirInfo.FullName, fpath), fromenc, toenc);
                 }
                 return 0;
@@ -122,7 +133,6 @@ all files that have '.txt' extension are targeted,excluding under the 'sub' dire
                 using (var outstm = File.Create(tmpFilePath))
                 using (var outbufstm = new BufferedStream(outstm))
                 {
-                    _Logger.LogDebug("processing {0}", targetFilePath);
                     TextConverter.ConvertStream(inbufstm, fromenc, outbufstm, toenc, NoPreamble, Newline);
                 }
                 File.Move(targetFilePath, bakFilePath);

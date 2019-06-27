@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <RootNamespace>dotnet_text_encoder</RootNamespace>
-    <Version>1.0.1</Version>
+    <Version>1.1.0</Version>
     <AssemblyName>dotnet-tenc</AssemblyName>
     <ToolCommandName>dotnet-tenc</ToolCommandName>
     <PackAsTool>true</PackAsTool>
