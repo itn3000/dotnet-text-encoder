@@ -47,17 +47,7 @@ all files that have '.txt' extension are targeted,excluding under the 'sub' dire
             {
                 if (!_setNewline)
                 {
-                    if (!string.IsNullOrEmpty(NewlineString))
-                    {
-                        if (!Newline.TryParse(NewlineString, out _newline))
-                        {
-                            _newline = Newline.None;
-                        }
-                    }
-                    else
-                    {
-                        _newline = Newline.None;
-                    }
+                    _newline = TextConverter.ParseNewline(NewlineString);
                     _setNewline = true;
                 }
                 return _newline;
