@@ -174,6 +174,10 @@ available rids are listed in [Microsoft's official document](https://docs.micros
 
 # Release Notes
 
+## 1.1.1.1
+
+* fix failing parsing EOL
+
 ## 1.1.0
 
 * add `--dry-run` option
