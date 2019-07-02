@@ -53,17 +53,7 @@ input utf-8,output utf-8 convert eol to LF(and no BOM)
             {
                 if(!_setNewline)
                 {
-                    if(!string.IsNullOrEmpty(NewlineString))
-                    {
-                        if(!Newline.TryParse(NewlineString, out _newline))
-                        {
-                            _newline = Newline.None;
-                        }
-                    }
-                    else
-                    {
-                        _newline = Newline.None;
-                    }
+                    _newline = TextConverter.ParseNewline(NewlineString);
                     _setNewline = true;
                 }
                 return _newline;

@@ -150,5 +150,23 @@ namespace dotnet_text_encoder
                     break;
             }
         }
+        public static Newline ParseNewline(string name)
+        {
+            if(string.IsNullOrEmpty(name))
+            {
+                return Newline.None;
+            }
+            switch(name.ToLower().Trim())
+            {
+                case "crlf":
+                    return Newline.Crlf;
+                case "lf":
+                    return Newline.Lf;
+                case "Cr":
+                    return Newline.Cr;
+                default:
+                    return Newline.None;
+            }
+        }
     }
 }
