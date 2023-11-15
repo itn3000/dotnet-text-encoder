@@ -8,7 +8,7 @@ strategy:
     linux:
       imageName: 'ubuntu-20.04'
       rid: "linux-x64"
-      PLATFORMLINKER: "clang-6.0"
+      PLATFORMLINKER: "clang-10.0"
       ExE_FILE_ExT: ""
     mac:
       imageName: 'macos-11'
