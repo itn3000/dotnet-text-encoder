@@ -4,6 +4,7 @@
 		<Assembly Name="dtenc">
 			<Type Name="dotnet_text_encoder.OverwriteCommand" Dynamic="Required All" />
 			<Type Name="dotnet_text_encoder.EncodingInfoGetter" Dynamic="Required All"/>
+			<Type Name="dotnet_text_encoder.Options" Dynamic="Required All"/>
 		</Assembly>
 	</Application>
 </Directives>
