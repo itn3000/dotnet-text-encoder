@@ -5,7 +5,7 @@ dotnet global tool for changing text encoding.
 
 # Requirements
 
-* [dotnet sdk 2.1 or later](https://dotnet.microsoft.com/download)
+* [dotnet sdk 8.0 or later](https://dotnet.microsoft.com/download)
 
 # Install
 
@@ -13,7 +13,7 @@ dotnet global tool for changing text encoding.
     `dotnet tool install -g dotnet-text-encoder`
 2. ensure adding `$HOME/.dotnet/tools` to PATH environment
 
-and then you can execute command by `dotnet tenc` or `dotnet-tenc`
+and then you can execute command by `dtenc`
 
 ## Use native binary
 
@@ -27,9 +27,9 @@ binaries can be found in [release page](https://github.com/itn3000/dotnet-text-e
 here is the help output
 
 ```
-dotnet-tenc 1.0.0
+dtenc 2.0.0.0
 
-Usage: dotnet-tenc [options] [command]
+Usage: dtenc [options] [command]
 
 Options:
   --version         Show version information
@@ -37,14 +37,14 @@ Options:
   -t|--to           output file encoding(default: UTF-8)
   -i|--input        input file path(default: standard input)
   -o|--output       output file path(default: standard output)
-  -n|--no-preamble  disable output preamble(=BOM) if exists
+  -p|--preamble     enable output preamble(=BOM) if exists
   -e|--eol          converting end of line(cr,crlf,lf,none: default=none)
   -?|-h|--help      Show help information
 
 Commands:
   getinfo           
 
-Run 'dotnet-tenc [command] --help' for more information about a command.
+Run 'dtenc [command] --help' for more information about a command.
 
 changing text encoding
 Examples:
@@ -52,19 +52,19 @@ input utf-8,output shift_jis(cp932) by name:
   dotnet tenc -f utf-8 -t shift_jis -i utf8.txt -o sjis.txt
 input utf-8,output shift_jis(cp932) by code page
   dotnet tenc -f 65001 -t 932 -i utf8.txt -o sjis.txt
-input utf-8,output utf-8 without BOM(BOM added by default)
-  dotnet tenc -f utf-8 -t shift_jis -i utf8.txt -o sjis.txt -n
+input utf-8,output utf-8 without BOM(BOM disabled by default)
+  dotnet tenc -f utf-8 -t shift_jis -i utf8.txt -o sjis.txt
 ```
 
 ### Powershell Warning
 
 Because of powershell spec, using pipeline may cause garbling.
 ```
-dotnet tenc -i some.txt -f utf-8 -t euc-jp > out.txt
+dtenc -i some.txt -f utf-8 -t euc-jp > out.txt
 ```
 To avoid this, you should use `-o` option.
 ```
-dotnet tenc -i some.txt -f utf-8 -t euc-jp -o out.txt
+dtenc -i some.txt -f utf-8 -t euc-jp -o out.txt
 ```
 
 ## Getting encoding info
@@ -75,7 +75,7 @@ This command gets the information of specified encodings.
 Here is the help text
 
 ```
-Usage: dotnet-tenc getinfo [options]
+Usage: dtenc getinfo [options]
 
 Options:
   -n|--name        encoding names
@@ -87,17 +87,17 @@ getting encoding info and output by CSV format
 
 Examples:
 try get info by name(multiple select is allowed):
-    dotnet tenc getinfo -n shift_jis -n utf-8
+    dtenc getinfo -n shift_jis -n utf-8
 try get info by codepage number(single)
-    dotnet tenc getinfo -c 932
+    dtenc getinfo -c 932
 try get info by codepage number(range, multiple select is allowed)
-    dotnet tenc getinfo -c 0-1000 -c 2000-3000
+    dtenc getinfo -c 0-1000 -c 2000-3000
 ```
 
 and then command will output following CSV format
 
 ```
-> dotnet tenc getinfo -n utf-8
+> dtenc getinfo -n utf-8
 Name,CodePage,Found,DisplayName,Preamble
 utf-8,65001,True,Unicode (UTF-8),efbbbf
 ```
@@ -110,7 +110,7 @@ Here is the help text:
 ```
 convert files with overwrite mode
 
-Usage: dotnet-tenc overwrite [options] <Targets>
+Usage: dtenc overwrite [options] <Targets>
 
 Arguments:
   Targets           target files, you can use globbing(*.txt, **/*.cs)
@@ -121,18 +121,18 @@ Options:
   -t|--to           output file encoding(default: UTF-8)
   -b|--base         search base directory(default: current directory)
   -i|--ignore-case  search file with case insensitive
-  -n|--no-preamble  disable output preamble(=BOM) if exists
+  -p|--preamble     enable output preamble(=BOM) if exists
   -e|--eol          converting end of line(cr,crlf,lf,none: default=none)
   --dry-run         do not convert file
   -x|--exclude      file exclude pattern, you can use globbing
 
 Examples:
 all files that have '.txt' extension are targeted.
-  dotnet tenc ow -f utf-8 -t utf-8 -e lf **/*.txt
+  dtenc ow -f utf-8 -t utf-8 -e lf **/*.txt
 all files that have '.txt' extension under the 'targetdir' are targeted.
-  dotnet tenc ow -f utf-8 -t utf-8 -e lf **/*.txt -b targetdir
+  dtenc ow -f utf-8 -t utf-8 -e lf **/*.txt -b targetdir
 all files that have '.txt' extension are targeted,excluding under the 'sub' directory
-  dotnet tenc ow -f utf-8 -t utf-8 -e lf **/*.txt -x sub/**/*
+  dtenc ow -f utf-8 -t utf-8 -e lf **/*.txt -x sub/**/*
 ```
 
 # Build
@@ -160,8 +160,8 @@ if you are trying to build on ubuntu, you must install following.
 
 ### Building
 
-run `dotnet publish -c [Debug or Release] -p:WithCoreRT=true -p:PackAsTool=false -r [rid]`.
-and the native binary will be created in `dotnet-text-encoder/bin/[Debug or Release]/netcoreapp2.1/[rid]/native/`
+run `dotnet publish -c [Debug or Release] -p:PublishAot=true -p:PackAsTool=false -r [rid]`.
+and the native binary will be created in `artifacts/publish/dotnet-text-encoder/release_[rid]`
 
 if you get following error message about clang, you can avoid this error by setting `CppCompilerAndLinker=[clang command]` to environment variable.
 
@@ -173,6 +173,14 @@ available rids are listed in [Microsoft's official document](https://docs.micros
 **Warning: currently, cross compiling is not supported, so OS part of rid should be same as build machine platform**
 
 # Release Notes
+
+## 2.0.0.0
+
+* update to dotnet8
+* publish by NativeAOT
+* **BREAKING:change binary name to "dtenc"**
+* **BREAKING:disable BOM by default**
+    * remove `-n|--no-preamble`, add `-p|--preamble`
 
 ## 1.1.1.1
 
