@@ -8,7 +8,7 @@ strategy:
     linux:
       imageName: 'ubuntu-20.04'
       rid: "linux-x64"
-      PLATFORMLINKER: "clang-10.0"
+      PLATFORMLINKER: "clang-10"
       ExE_FILE_ExT: ""
     mac:
       imageName: 'macos-11'
@@ -77,7 +77,7 @@ steps:
     name: "copying_native_file"
     inputs:
       sourceFolder: "artifacts/publish/dotnet-text-encoder/release_$(rid)"
-      contents: "*.*"
+      contents: "*"
       targetFolder: "$(Build.ArtifactStagingDirectory)"
   - task: Bash@3
     name: "rename_native_file_linux_mac"
@@ -100,13 +100,13 @@ steps:
       script: |
         Move-Item $(Build.ArtifactStagingDirectory)/dtenc$(ExE_FILE_ExT) $(Build.ArtifactStagingDirectory)/dtenc-$(rid)$(ExE_FILE_ExT)
     condition: "eq(variables['rid'], 'win-x64')"
-  - task: CopyFiles@2
-    name: "copying_nupkg"
-    inputs:
-      sourceFolder: "artifacts/package/release"
-      contents: "**/*.nupkg"
-      targetFolder: "$(Build.ArtifactStagingDirectory)"
-    condition: "eq(variables['rid'], 'win-x64')"
+  # - task: CopyFiles@2
+  #   name: "copying_nupkg"
+  #   inputs:
+  #     sourceFolder: "artifacts/package/release"
+  #     contents: "**/*.nupkg"
+  #     targetFolder: "$(Build.ArtifactStagingDirectory)"
+  #   condition: "eq(variables['rid'], 'win-x64')"
   - task: PublishBuildArtifacts@1
     name: "publishing_artifacts"
     inputs:
