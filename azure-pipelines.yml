@@ -141,7 +141,7 @@ stages:
             name: "push_nuget_package"
             inputs:
               command: push
-              packagesToPush: "*.nupkg"
+              packagesToPush: "$(Build.ArtifactStagingDirectory)/*.nupkg"
               publishFeedCredentials: dotnet-text-encoder-nuget
               nuGetFeedType: external
               includeNuGetOrg: true
@@ -152,5 +152,5 @@ stages:
               githubConnection: "dotnet-text-encoder-github"
               action: "create"
               tagSource: gitTag
-              assets: "*"
+              assets: "$(Build.ArtifactStagingDirectory)/*"
               isDraft: true

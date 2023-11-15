@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>dotnet_text_encoder</RootNamespace>
-    <Version>2.0.0.0</Version>
+    <Version>2.0.0.1</Version>
     <AssemblyName>dtenc</AssemblyName>
     <ToolCommandName>dtenc</ToolCommandName>
     <PackAsTool>true</PackAsTool>

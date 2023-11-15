@@ -174,7 +174,7 @@ available rids are listed in [Microsoft's official document](https://docs.micros
 
 # Release Notes
 
-## 2.0.0.0
+## 2.0.0.1
 
 * update to dotnet8
 * publish by NativeAOT
