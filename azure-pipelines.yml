@@ -146,7 +146,7 @@ stages:
               nuGetFeedType: external
               includeNuGetOrg: true
               feedsToUse: "config"
-          - task: GitHubRelease@2
+          - task: GitHubRelease@1
             name: "creating_release"
             inputs:
               githubConnection: "dotnet-text-encoder-github"
