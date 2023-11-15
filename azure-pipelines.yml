@@ -123,22 +123,22 @@ stages:
           vmImage: ubuntu-20.04
         steps:
           - task: DownloadPipelineArtifact@2
-            name: downloading win-x64
+            name: downloading_win
             inputs:
               buildType: current
               artifactName: dotnet-tenc-win-x64
           - task: DownloadPipelineArtifact@2
-            name: downloading linux-x64
+            name: downloading_linux
             inputs:
               buildType: current
               artifactName: dotnet-tenc-linux-x64
           - task: DownloadPipelineArtifact@2
-            name: downloading osx-x64
+            name: downloading_osx
             inputs:
               buildType: current
               artifactName: dotnet-tenc-osx-x64
           - task: NuGetCommand@2
-            name: "push nuget package"
+            name: "push_nuget_package"
             inputs:
               command: push
               packagesToPush: "dotnet-tenc-win-x64/**/*.nupkg"
@@ -147,7 +147,7 @@ stages:
               includeNuGetOrg: true
               feedsToUse: "config"
           - task: GitHubRelease@2
-            name: "creating release"
+            name: "creating_release"
             inputs:
               githubConnection: "dotnet-text-encoder-github"
               action: "create"
