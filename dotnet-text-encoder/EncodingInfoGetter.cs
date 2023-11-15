@@ -40,7 +40,7 @@ try get info by codepage number(range)
         IConsole _Console;
         public int OnExecute()
         {
-            _Console.WriteLine($"Name,CodePage,Found,DisplayName,Preamble");
+            _Console.WriteLine($"Name,CodePage,Found,DisplayName,Preamble(hex)");
             foreach (var result in GetTestResults())
             {
                 if(!ShowFault && !result.Found)

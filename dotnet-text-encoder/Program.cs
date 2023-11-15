@@ -41,8 +41,9 @@ input utf-8,output utf-8 convert eol to LF(and no BOM)
         public string InputFile { get; set; }
         [Option("-o|--output", "output file path(default: standard output)", CommandOptionType.SingleValue)]
         public string OutputFile { get; set; }
-        [Option("-n|--no-preamble", "disable output preamble(=BOM) if exists", CommandOptionType.NoValue)]
-        public bool NoPreamble { get; set; }
+        [Option("-p|--preamble", "enable output preamble(=BOM) if exists", CommandOptionType.NoValue)]
+        public bool Preamble { get; set; }
+        private bool NoPreamble => !Preamble;
         [Option("-e|--eol", "converting end of line(cr,crlf,lf,none: default=none)", CommandOptionType.SingleValue)]
         public string NewlineString { get; set; }
         Newline _newline;

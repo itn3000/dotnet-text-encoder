@@ -6,17 +6,17 @@ trigger:
 strategy:
   matrix:
     linux:
-      imageName: 'ubuntu-16.04'
+      imageName: 'ubuntu-20.04'
       rid: "linux-x64"
       PLATFORMLINKER: "clang-6.0"
       ExE_FILE_ExT: ""
     mac:
-      imageName: 'macos-10.13'
+      imageName: 'macos-11'
       rid: "osx-x64"
       PLATFORMLINKER: ""
       ExE_FILE_ExT: ""
     windows:
-      imageName: 'vs2017-win2016'
+      imageName: 'windows-2019'
       rid: "win-x64"
       PLATFORMLINKER: ""
       ExE_FILE_ExT: ".exe"
@@ -30,8 +30,11 @@ steps:
   - script: |
       sudo apt-get update
       sudo apt-get install -y libkrb5-dev
-    condition: "eq(variables['imageName'],'ubuntu-16.04')"
+    condition: "eq(variables['imageName'],'ubuntu-20.04')"
     name: "install_packages"
+  - task: UseDotNet@2
+    inputs:
+      version: "8.0.100"
   - task: DotNetCoreCLI@2
     name: "restore_solution"
     inputs:
@@ -60,7 +63,7 @@ steps:
     inputs:
       command: "custom"
       custom: "publish"
-      arguments: "-c Release -p:WithCoreRT=true -p:RuntimeIdentifier=$(rid) -p:PackAsTool=false"
+      arguments: "-c Release -p:PublishAot=true -p:RuntimeIdentifier=$(rid) -p:PackAsTool=false"
       projects: "dotnet-text-encoder/dotnet-text-encoder.csproj"
       publishWebProjects: false
   - task: Bash@3
@@ -68,40 +71,41 @@ steps:
     inputs:
       targetType: inline
       script: |
-        dotnet-text-encoder/bin/Release/netcoreapp2.1/$(rid)/native/dotnet-tenc$(ExE_FILE_EXT) getinfo -c 0-100
+        artifacts/publish/dotnet-text-encoder/release_$(rid)/dtenc$(ExE_FILE_EXT) getinfo -c 0-100
   - task: CopyFiles@2
     name: "copying_native_file"
     inputs:
-      sourceFolder: "dotnet-text-encoder/bin/Release"
-      contents: "**/native/*"
+      sourceFolder: "artifacts/publish/dotnet-text-encoder/release_$(rid)"
+      contents: "*.*"
       targetFolder: "$(Build.ArtifactStagingDirectory)"
   - task: Bash@3
     name: "rename_native_file_linux_mac"
     inputs:
       targetType: inline
       script: |
-        mv $(Build.ArtifactStagingDirectory)/netcoreapp2.1/$(rid)/native/dotnet-tenc$(EXE_FILE_ExT) $(Build.ArtifactStagingDirectory)/netcoreapp2.1/$(rid)/native/dotnet-tenc-$(rid)$(EXE_FILE_EXT)
+        mv $(Build.ArtifactStagingDirectory)/dtenc$(EXE_FILE_ExT) $(Build.ArtifactStagingDirectory)/dtenc-$(rid)$(EXE_FILE_EXT)
     condition: "or(eq(variables['rid'], 'linux-x64'), eq(variables['rid'], 'osx-x64'))"
   - task: Bash@3
     name: "strip_native_file_linux"
     inputs:
       targetType: inline
       script: |
-        strip $(Build.ArtifactStagingDirectory)/netcoreapp2.1/$(rid)/native/dotnet-tenc-$(rid)$(EXE_FILE_EXT)
+        strip $(Build.ArtifactStagingDirectory)/dtenc-$(rid)$(EXE_FILE_EXT)
     condition: "eq(variables['rid'], 'linux-x64')"
   - task: Powershell@2
     name: "rename_native_file_win"
     inputs:
       targetType: inline
       script: |
-        Move-Item $(Build.ArtifactStagingDirectory)/netcoreapp2.1/$(rid)/native/dotnet-tenc$(ExE_FILE_ExT) $(Build.ArtifactStagingDirectory)/netcoreapp2.1/$(rid)/native/dotnet-tenc-$(rid)$(ExE_FILE_ExT)
+        Move-Item $(Build.ArtifactStagingDirectory)/dtenc$(ExE_FILE_ExT) $(Build.ArtifactStagingDirectory)/dtenc-$(rid)$(ExE_FILE_ExT)
     condition: "eq(variables['rid'], 'win-x64')"
   - task: CopyFiles@2
     name: "copying_nupkg"
     inputs:
-      sourceFolder: "dotnet-text-encoder/bin/Release"
+      sourceFolder: "artifacts/package/release"
       contents: "**/*.nupkg"
       targetFolder: "$(Build.ArtifactStagingDirectory)"
+    condition: "eq(variables['rid'], 'win-x64')"
   - task: PublishBuildArtifacts@1
     name: "publishing_artifacts"
     inputs:

@@ -33,8 +33,9 @@ all files that have '.txt' extension are targeted,excluding under the 'sub' dire
         public string BaseDirectory { get; set; }
         [Option("-i|--ignore-case", "search file with case insensitive", CommandOptionType.NoValue)]
         public bool IgnoreCase { get; set; }
-        [Option("-n|--no-preamble", "disable output preamble(=BOM) if exists", CommandOptionType.NoValue)]
-        public bool NoPreamble { get; set; }
+        [Option("-p|--preamble", "eable output preamble(=BOM) if exists", CommandOptionType.NoValue)]
+        public bool Preamble { get; set; }
+        private bool NoPreamble => !Preamble;
         [Option("-e|--eol", "converting end of line(cr,crlf,lf,none: default=none)", CommandOptionType.SingleValue)]
         public string NewlineString { get; set; }
         [Option("--dry-run", "do not convert file", CommandOptionType.NoValue)]

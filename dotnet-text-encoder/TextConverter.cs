@@ -96,7 +96,7 @@ namespace dotnet_text_encoder
                 {
                     // CR has come, but cannot decide to CRLF or single CR,
                     var sp = input.Slice(off, i - off);
-                    wspan = EncodeAndWriteStream(sp, output, wspan, nl, outputEncoding, ref wbuf);
+                    wbuf = EncodeAndWriteStream(sp, output, outputEncoding, wbuf);
                     off = i + 1;
                     prevcr = true;
                 }
@@ -104,7 +104,7 @@ namespace dotnet_text_encoder
                 {
                     // single LF has come
                     var sp = input.Slice(off, i - off);
-                    wspan = EncodeAndWriteStream(sp, output, wspan, nl, outputEncoding, ref wbuf);
+                    wbuf = EncodeAndWriteStream(sp, output, outputEncoding, wbuf);
                     WriteNewline(output, nl, Lf.AsSpan());
                     off = i + 1;
                 }
@@ -113,24 +113,27 @@ namespace dotnet_text_encoder
             if (off < input.Length)
             {
                 var sp = input.Slice(off);
-                EncodeAndWriteStream(sp, output, wspan, nl, outputEncoding, ref wbuf);
+                wbuf = EncodeAndWriteStream(sp, output, outputEncoding, wbuf);
             }
             return prevcr;
         }
-        static Span<byte> EncodeAndWriteStream(ReadOnlySpan<char> sp, Stream output, Span<byte> wspan, Newline nl, Encoding outputEncoding, ref byte[] wbuf)
+        static byte[] EncodeAndWriteStream(ReadOnlySpan<char> sp, Stream output, Encoding outputEncoding, byte[] wbuf)
         {
             var wlen = outputEncoding.GetByteCount(sp);
-            if (wlen > wspan.Length)
+            if (wlen > wbuf.Length)
             {
-                wspan = Span<byte>.Empty;
                 ArrayPool<byte>.Shared.Return(wbuf);
                 wbuf = ArrayPool<byte>.Shared.Rent(wlen);
-                wspan = wbuf.AsSpan();
             }
-            outputEncoding.GetBytes(sp, wspan);
+            var wspan = wbuf.AsSpan();
+            var bytes = outputEncoding.GetBytes(sp, wspan);
+            if(bytes != wlen)
+            {
+                throw new Exception($"unexpected encoding byte length({bytes})");
+            }
             var tmp = wspan.Slice(0, wlen);
             output.Write(tmp);
-            return wspan;
+            return wbuf;
         }
         static void WriteNewline(Stream stm, Newline nl, ReadOnlySpan<byte> defaultValue)
         {
