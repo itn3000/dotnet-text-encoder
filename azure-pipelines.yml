@@ -66,6 +66,7 @@ steps:
       arguments: "-c Release -p:PublishAot=true -p:RuntimeIdentifier=$(rid) -p:PackAsTool=false"
       projects: "dotnet-text-encoder/dotnet-text-encoder.csproj"
       publishWebProjects: false
+      zipAfterPublish: false
   - task: Bash@3
     name: "test_native_file_execution"
     inputs:
