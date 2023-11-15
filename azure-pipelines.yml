@@ -141,7 +141,7 @@ stages:
             name: "push_nuget_package"
             inputs:
               command: push
-              packagesToPush: "dotnet-tenc-win-x64/**/*.nupkg"
+              packagesToPush: "*.nupkg"
               publishFeedCredentials: dotnet-text-encoder-nuget
               nuGetFeedType: external
               includeNuGetOrg: true
@@ -152,5 +152,5 @@ stages:
               githubConnection: "dotnet-text-encoder-github"
               action: "create"
               tagSource: gitTag
-              assets: "dotnet-tenc-*/*"
+              assets: "*"
               isDraft: true
