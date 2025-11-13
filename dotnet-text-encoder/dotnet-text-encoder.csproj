@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>dotnet_text_encoder</RootNamespace>
-    <Version>2.0.0.1</Version>
+    <Version>2.1.0.0</Version>
     <AssemblyName>dtenc</AssemblyName>
     <ToolCommandName>dtenc</ToolCommandName>
     <PackAsTool>true</PackAsTool>
@@ -15,9 +15,14 @@
     <PackageTags>text tool converter</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>dotnet global tool for changing text encoding</Description>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ConsoleAppFramework" Version="5.7.4">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
