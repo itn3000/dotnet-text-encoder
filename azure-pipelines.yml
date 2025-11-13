@@ -15,20 +15,20 @@ stages:
         strategy:
           matrix:
             linux:
-              imageName: 'ubuntu-20.04'
+              imageName: 'ubuntu-24.04'
               rid: "linux-x64"
-              PLATFORMLINKER: "clang-10"
-              ExE_FILE_ExT: ""
+              PLATFORMLINKER: "clang-16"
+              EXE_FILE_EXT: ""
             mac:
-              imageName: 'macos-11'
+              imageName: 'macos-14'
               rid: "osx-x64"
               PLATFORMLINKER: ""
-              ExE_FILE_ExT: ""
+              EXE_FILE_EXT: ""
             windows:
-              imageName: 'windows-2019'
+              imageName: 'windows-2022'
               rid: "win-x64"
               PLATFORMLINKER: ""
-              ExE_FILE_ExT: ".exe"
+              EXE_FILE_EXT: ".exe"
         variables:
           - name: CppCompilerAndLinker
             value: "$(PLATFORMLINKER)"
@@ -80,7 +80,7 @@ stages:
             inputs:
               targetType: inline
               script: |
-                artifacts/publish/dotnet-text-encoder/release_$(rid)/dtenc$(ExE_FILE_EXT) getinfo -c 0-100
+                artifacts/publish/dotnet-text-encoder/release_$(rid)/dtenc$(EXE_FILE_EXT) getinfo -c 0-100
           - task: CopyFiles@2
             name: "copying_native_file"
             inputs:
@@ -92,7 +92,7 @@ stages:
             inputs:
               targetType: inline
               script: |
-                mv $(Build.ArtifactStagingDirectory)/dtenc$(EXE_FILE_ExT) $(Build.ArtifactStagingDirectory)/dtenc-$(rid)$(EXE_FILE_EXT)
+                mv $(Build.ArtifactStagingDirectory)/dtenc$(EXE_FILE_EXT) $(Build.ArtifactStagingDirectory)/dtenc-$(rid)$(EXE_FILE_EXT)
             condition: "or(eq(variables['rid'], 'linux-x64'), eq(variables['rid'], 'osx-x64'))"
           - task: Bash@3
             name: "strip_native_file_linux"
@@ -106,7 +106,7 @@ stages:
             inputs:
               targetType: inline
               script: |
-                Move-Item $(Build.ArtifactStagingDirectory)/dtenc$(ExE_FILE_ExT) $(Build.ArtifactStagingDirectory)/dtenc-$(rid)$(ExE_FILE_ExT)
+                Move-Item $(Build.ArtifactStagingDirectory)/dtenc$(EXE_FILE_EXT) $(Build.ArtifactStagingDirectory)/dtenc-$(rid)$(EXE_FILE_EXT)
             condition: "eq(variables['rid'], 'win-x64')"
           - task: PublishBuildArtifacts@1
             name: "publishing_artifacts"
