@@ -60,6 +60,21 @@ class Commands
     {
         return new OverwriteCommand().Overwrite(from, to, baseDirectory, ignoreCase, preamble, eol, dryRun, exclude, targets);
     }
+    /// <summary>
+    /// getting encoding info and output by CSV format
+    /// 
+    /// Examples:
+    /// try get info by name:
+    ///     dotnet tenc getinfo -n shift_jis
+    /// try get info by codepage number(single)
+    ///     dotnet tenc getinfo -c 932
+    /// try get info by codepage number(range)
+    ///     dotnet tenc getinfo -c 0-1000
+    /// </summary>
+    /// <param name="name">-n, encoding names</param>
+    /// <param name="codepage">-c, code page range(number separated by '-', number is must be 0 - 65535)</param>
+    /// <param name="showFault">-s, show fault result</param>
+    /// <returns></returns>
     [Command("getinfo")]
     public int GetEncodingInfo(string[]? name = null, string[]? codepage = null, bool showFault = false)
     {
