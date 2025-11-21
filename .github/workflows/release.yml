@@ -47,11 +47,88 @@ jobs:
         with:
           name: dtenc-${{matrix.rid}}
           path: artifacts/publish/dotnet-text-encoder/release_${{matrix.rid}}/*
-  # upload:
-  #   runs-on: "ubuntu-latest"
-  #   steps:
-  #     - uses: actions/checkout@v1
-  #     - name: download win-x64
-  #       uses: actions/download-artifact@v5
-  #       with:
-           
+  upload-windows:
+    runs-on: "ubuntu-latest"
+    strategy:
+      matrix:
+        include:
+          - rid: win-x64
+    env:
+      GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    steps:
+      - name: download-nupkg
+        uses: actions/download-artifact@v5
+        with:
+          name: nupkg
+          path: nupkg
+      - name: download-binary
+        uses: actions/download-artifact@v5
+        with:
+          name: dtenc-${{matrix.rid}}
+          path: ${{matrix.rid}}
+      - name: rename-binary
+        run: mv dtenc.exe dtenc-${{matrix.rid}}.exe
+        working-directory: ${{matrix.rid}}
+      - name: upload-windows-exe
+        run: gh release upload --clobber dtenc-${{matrix.rid}}.exe
+        working-directory: ${{matrix.rid}}
+      - name: upload-windows-pdb
+        run: gh release upload --clobber dtenc.pdb
+        working-directory: ${{matrix.rid}}
+      - name: upload-nupkg
+        run: gh release upload --clobber dtenc*
+        working-directory: nupkg
+      - name: push-nupkg-to-nuget
+        run: dotnet nuget push -k ${{secrets.NUGET_TOKEN}} -s https://api.nuget.org/v3/index.json dtenc*.nupkg
+        working-directory: nupkg
+  upload-linux:
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      matrix:
+        include:
+          - rid: linux-x64
+    env:
+      GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    steps:
+      - name: download-binary
+        uses: actions/download-artifact@v5
+        with:
+          name: dtenc-${{matrix.rid}}
+          path: ${{matrix.rid}}
+      - name: rename-binary
+        run: mv dtenc dtenc-${{matrix.rid}}
+        working-directory: ${{matrix.rid}}
+      - name: upload-binary
+        run: gh release upload --clobber dtenc-${{matrix.rid}}
+        working-directory: ${{matrix.rid}}
+      - name: upload-dbg
+        run: gh release upload --clobber dtenc.dbg
+        working-directory: ${{matrix.rid}}
+  upload-osx:
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      matrix:
+        include:
+          - rid: osx-x64
+    env:
+      GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    steps:
+      - name: download-binary
+        uses: actions/download-artifact@v5
+        with:
+          name: dtenc-${{matrix.rid}}
+          path: ${{matrix.rid}}
+      - name: rename-binary
+        run: mv dtenc dtenc-${{matrix.rid}}
+        working-directory: ${{matrix.rid}}
+      - name: upload-binary
+        run: gh release upload --clobber dtenc-${{matrix.rid}}
+        working-directory: ${{matrix.rid}}
+      - name: compress-debug
+        run: tar cfz dtenc.dSYM.tgz dtenc.dSYM
+        working-directory: ${{matrix.rid}}
+      - name: upload-debug
+        run: gh release upload --clobber dtenc.dSYM.tgz
+        working-directory: ${{matrix.rid}}
