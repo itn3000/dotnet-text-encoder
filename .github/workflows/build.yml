@@ -46,6 +46,7 @@ jobs:
           name: dtenc-${{matrix.rid}}
           path: artifacts/publish/dotnet-text-encoder/release_${{matrix.rid}}/*
   list-artifacts:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: download-nupkg
