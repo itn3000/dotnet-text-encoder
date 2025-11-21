@@ -8,7 +8,7 @@ namespace dotnet_text_encoder
 {
     static class TextConverter
     {
-        public static Encoding GetEncodingFromString(string str)
+        public static Encoding GetEncodingFromString(string? str)
         {
             if (string.IsNullOrEmpty(str))
             {

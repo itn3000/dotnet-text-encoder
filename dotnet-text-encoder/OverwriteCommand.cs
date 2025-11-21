@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using McMaster.Extensions.CommandLineUtils;
+using ConsoleAppFramework;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -11,90 +11,63 @@ using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
 
 namespace dotnet_text_encoder
 {
-    [Command("overwrite", "ow", Description = "convert files with overwrite mode", ExtendedHelpText = @"
-Examples:
-all files that have '.txt' extension are targeted.
-  dotnet tenc ow -f utf-8 -t utf-8 -e lf **/*.txt
-all files that have '.txt' extension under the 'targetdir' are targeted.
-  dotnet tenc ow -f utf-8 -t utf-8 -e lf **/*.txt -b targetdir
-all files that have '.txt' extension are targeted,excluding under the 'sub' directory
-  dotnet tenc ow -f utf-8 -t utf-8 -e lf **/*.txt -x sub/**/*
-")]
-    [HelpOption]
-    class OverwriteCommand
+    public class OverwriteCommand
     {
-        [Argument(0, "Targets", "target files, you can use globbing(*.txt, **/*.cs)")]
-        public string[] Targets { get; set; }
-        [Option("-f|--from", "input file encoding(default: UTF-8)", CommandOptionType.SingleValue)]
-        public string FromEncoding { get; set; }
-        [Option("-t|--to", "output file encoding(default: UTF-8)", CommandOptionType.SingleValue)]
-        public string ToEncoding { get; set; }
-        [Option("-b|--base", "search base directory(default: current directory)", CommandOptionType.SingleValue)]
-        public string BaseDirectory { get; set; }
-        [Option("-i|--ignore-case", "search file with case insensitive", CommandOptionType.NoValue)]
-        public bool IgnoreCase { get; set; }
-        [Option("-p|--preamble", "eable output preamble(=BOM) if exists", CommandOptionType.NoValue)]
-        public bool Preamble { get; set; }
-        private bool NoPreamble => !Preamble;
-        [Option("-e|--eol", "converting end of line(cr,crlf,lf,none: default=none)", CommandOptionType.SingleValue)]
-        public string NewlineString { get; set; }
-        [Option("--dry-run", "do not convert file", CommandOptionType.NoValue)]
-        public bool DryRun { get; set; }
-        Newline _newline;
-        bool _setNewline = false;
-        public Newline Newline
-        {
-            get
-            {
-                if (!_setNewline)
-                {
-                    _newline = TextConverter.ParseNewline(NewlineString);
-                    _setNewline = true;
-                }
-                return _newline;
-            }
-        }
-        [Option("-x|--exclude", "file exclude pattern, you can use globbing", CommandOptionType.MultipleValue)]
-        public string[] Exclude { get; set; }
-        public OverwriteCommand(ILoggerFactory loggerFactory, IConsole console)
-        {
-            _Logger = loggerFactory.CreateLogger<OverwriteCommand>();
-            _Console = console;
-        }
-        public OverwriteCommand() : this(NullLoggerFactory.Instance, McMaster.Extensions.CommandLineUtils.PhysicalConsole.Singleton)
-        {
-        }
-        IConsole _Console;
-        ILogger _Logger;
-        public int OnExecute()
+        /// <summary>
+        /// convert files with overwrite mode
+        /// Examples:
+        /// all files that have '.txt' extension are targeted.
+        ///   dotnet tenc ow -f utf-8 -t utf-8 -e lf **/*.txt
+        /// all files that have '.txt' extension under the 'targetdir' are targeted.
+        ///   dotnet tenc ow -f utf-8 -t utf-8 -e lf **/*.txt -b targetdir
+        /// all files that have '.txt' extension are targeted,excluding under the 'sub' directory
+        ///   dotnet tenc ow -f utf-8 -t utf-8 -e lf **/*.txt -x sub/**/*
+        /// </summary>
+        /// <param name="targets">target files, you can use globbing(*.txt, **/*.cs)</param>
+        /// <param name="from">-f, input file encoding(default: UTF-8)</param>
+        /// <param name="to">-t, output file encoding(default: UTF-8)</param>
+        /// <param name="baseDirectory">-b|--base, search base directory(default: current directory)</param>
+        /// <param name="ignoreCase">-i, search file with case insensitive</param>
+        /// <param name="preamble">-p, enable output preamble(=BOM) if exists</param>
+        /// <param name="eol">-e, converting end of line(cr,crlf,lf,none: default=none)</param>
+        /// <param name="dryRun">do not convert file</param>
+        /// <param name="exclude">-x, file exclude pattern, you can use globbing</param>
+        /// <returns>0 if success</returns>
+        [Command("ow")]
+        public int Overwrite(string? from = null, string? to = null,
+            string? baseDirectory = null, bool ignoreCase = false,
+            bool preamble = false,
+            string? eol = null,
+            bool dryRun = false,
+            string[]? exclude = null, [Argument]params string[]? targets)
         {
             try
             {
-                if (Targets == null || Targets.Length == 0)
+                if (targets == null || targets.Length == 0)
                 {
-                    _Console.Error.WriteLine("one or more files must be specified");
+                    Console.Error.WriteLine("one or more files must be specified");
                     return 1;
                 }
-                var basedir = !string.IsNullOrEmpty(BaseDirectory) ? BaseDirectory : Directory.GetCurrentDirectory();
-                var fromenc = TextConverter.GetEncodingFromString(FromEncoding);
-                var toenc = TextConverter.GetEncodingFromString(ToEncoding);
+                var basedir = !string.IsNullOrEmpty(baseDirectory) ? baseDirectory : Directory.GetCurrentDirectory();
+                var fromenc = TextConverter.GetEncodingFromString(from);
+                var toenc = TextConverter.GetEncodingFromString(to);
                 var matcher = new Matcher(StringComparison.CurrentCultureIgnoreCase);
-                matcher.AddIncludePatterns(Targets);
-                if (Exclude != null && Exclude.Length != 0)
+                matcher.AddIncludePatterns(targets);
+                if (exclude != null && exclude.Length != 0)
                 {
-                    matcher.AddExcludePatterns(Exclude);
+                    matcher.AddExcludePatterns(exclude);
                 }
                 var baseDirInfo = new DirectoryInfoWrapper(new DirectoryInfo(basedir));
                 var result = matcher.Execute(baseDirInfo);
                 if (!result.HasMatches)
                 {
-                    _Console.Error.WriteLine("no file was matched");
+                    Console.Error.WriteLine("no file was matched");
                     return 3;
                 }
-                _Logger.LogDebug("converting {0} to {1}, newline = {2}, no preamble = {3}", fromenc.WebName, toenc.WebName, Newline, NoPreamble);
+                // _Logger.LogDebug("converting {0} to {1}, newline = {2}, no preamble = {3}", fromenc.WebName, toenc.WebName, Newline, NoPreamble);
                 foreach (var fpath in result.Files.Select(x => x.Path))
                 {
-                    if (DryRun)
+                    if (dryRun)
                     {
                         Console.WriteLine($"replacing file(dryrun): {fpath}");
                         continue;
@@ -103,17 +76,17 @@ all files that have '.txt' extension are targeted,excluding under the 'sub' dire
                     {
                         Console.WriteLine($"replacing file: {fpath}");
                     }
-                    DoEncoding(Path.Combine(baseDirInfo.FullName, fpath), fromenc, toenc);
+                    DoEncoding(Path.Combine(baseDirInfo.FullName, fpath), fromenc, toenc, preamble, ConvertNewline(eol));
                 }
                 return 0;
             }
             catch (Exception e)
             {
-                _Console.Error.WriteLine("converting file error:{0}", e);
+                Console.Error.WriteLine("converting file error:{0}", e);
                 return 2;
             }
         }
-        void DoEncoding(string targetFilePath, Encoding fromenc, Encoding toenc)
+        void DoEncoding(string targetFilePath, Encoding fromenc, Encoding toenc, bool preamble, Newline nl)
         {
             var tmpFilePath = $"{targetFilePath}.tmp";
             var bakFilePath = $"{targetFilePath}.bak";
@@ -124,7 +97,7 @@ all files that have '.txt' extension are targeted,excluding under the 'sub' dire
                 using (var outstm = File.Create(tmpFilePath))
                 using (var outbufstm = new BufferedStream(outstm))
                 {
-                    TextConverter.ConvertStream(inbufstm, fromenc, outbufstm, toenc, NoPreamble, Newline);
+                    TextConverter.ConvertStream(inbufstm, fromenc, outbufstm, toenc, !preamble, nl);
                 }
                 File.Move(targetFilePath, bakFilePath);
                 File.Move(tmpFilePath, targetFilePath);
@@ -132,7 +105,7 @@ all files that have '.txt' extension are targeted,excluding under the 'sub' dire
             }
             catch (Exception e)
             {
-                _Logger.LogWarning(e, "converting text error({0})", targetFilePath);
+                Console.Error.WriteLine($"converting text error({targetFilePath}): {e}");
             }
             finally
             {
@@ -145,7 +118,7 @@ all files that have '.txt' extension are targeted,excluding under the 'sub' dire
                 }
                 catch (Exception e)
                 {
-                    _Logger.LogWarning(e, "failed to delete tmpfile({0})", tmpFilePath);
+                    Console.Error.WriteLine($"failed to delete tmpfile({tmpFilePath}): {e}");
                 }
                 try
                 {
@@ -163,9 +136,13 @@ all files that have '.txt' extension are targeted,excluding under the 'sub' dire
                 }
                 catch (Exception e)
                 {
-                    _Logger.LogWarning(e, "failed to delete tmpfile({0}.tmp)", tmpFilePath);
+                    Console.Error.WriteLine("failed to delete tmpfile({0}.tmp): {1}", tmpFilePath, e);
                 }
             }
+        }
+        Newline ConvertNewline(string? nlString)
+        {
+            return TextConverter.ParseNewline(nlString ?? "");
         }
     }
 

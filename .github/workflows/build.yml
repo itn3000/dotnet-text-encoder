@@ -1,0 +1,73 @@
+name: Build
+on: [push]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: "ubuntu-22.04"
+            rid: "linux-x64"
+            linker: "clang-13"
+            imagetype: ubuntu
+          - os: "windows-latest"
+            rid: "win-x64"
+            imagetype: windows
+          - os: "macos-14"
+            rid: "osx-x64"
+            imagetype: mac
+    env:
+      CppCompilerAndLinker: ${{ matrix.linker }}
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: |
+            10.0.x
+      - name: Test Solution
+        run: dotnet test -c Release
+      - name: Pack Solution
+        run: dotnet pack
+        if: ${{ matrix.imagetype == 'windows' }}
+      - name: compile aot
+        run: dotnet publish -c Release -r ${{matrix.rid}} -p:PublishAot=true
+        working-directory: dotnet-text-encoder
+      - name: upload nupkg
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkg
+          path: artifacts/package/release/dotnet-text-encoder.*
+        if: ${{ matrix.imagetype == 'windows' }}
+      - name: upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: dtenc-${{matrix.rid}}
+          path: artifacts/publish/dotnet-text-encoder/release_${{matrix.rid}}/*
+  list-artifacts:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: download-nupkg
+        uses: actions/download-artifact@v5
+        with:
+          name: nupkg
+          path: nupkg
+      - name: download-win-x64
+        uses: actions/download-artifact@v5
+        with:
+          name: dtenc-win-x64
+          path: win-x64
+      - name: download-osx-x64
+        uses: actions/download-artifact@v5
+        with:
+          name: dtenc-osx-x64
+          path: osx-x64
+      - name: download-linux-x64
+        uses: actions/download-artifact@v5
+        with:
+          name: dtenc-linux-x64
+          path: linux-x64
+      - name: list artifacts
+        run: find .
