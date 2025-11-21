@@ -17,103 +17,6 @@ namespace dotnet_text_encoder
         Crlf,
         Lf,
     }
-//     [Command(ExtendedHelpText = @"
-// Examples:
-// input utf-8,output shift_jis(cp932) by name:
-//   dotnet tenc -f utf-8 -t shift_jis -i utf8.txt -o sjis.txt
-// input utf-8,output shift_jis(cp932) by code page
-//   dotnet tenc -f 65001 -t 932 -i utf8.txt -o sjis.txt
-// input utf-8,output utf-8 without BOM(BOM added by default)
-//   dotnet tenc -f utf-8 -t shift_jis -i utf8.txt -o sjis.txt -n
-// input utf-8,output utf-8 convert eol to LF(and no BOM)
-//   dotnet tenc -f utf-8 -t utf-8 -e lf -i utf8.txt -o utf8-lf.txt -n
-// ")]
-//     [Subcommand(typeof(EncodingInfoGetter))]
-//     [Subcommand(typeof(OverwriteCommand))]
-//     // [VersionOption("dotnet-tenc 1.0.0")]
-//     [VersionOptionFromMember(MemberName = "VersionString")]
-//     class Options
-//     {
-//         [Option("-f|--from", "input file encoding(default: UTF-8)", CommandOptionType.SingleValue)]
-//         public string FromEncoding { get; set; }
-//         [Option("-t|--to", "output file encoding(default: UTF-8)", CommandOptionType.SingleValue)]
-//         public string ToEncoding { get; set; }
-//         [Option("-i|--input", "input file path(default: standard input)", CommandOptionType.SingleValue)]
-//         public string InputFile { get; set; }
-//         [Option("-o|--output", "output file path(default: standard output)", CommandOptionType.SingleValue)]
-//         public string OutputFile { get; set; }
-//         [Option("-p|--preamble", "enable output preamble(=BOM) if exists", CommandOptionType.NoValue)]
-//         public bool Preamble { get; set; }
-//         private bool NoPreamble => !Preamble;
-//         [Option("-e|--eol", "converting end of line(cr,crlf,lf,none: default=none)", CommandOptionType.SingleValue)]
-//         public string NewlineString { get; set; }
-//         Newline _newline;
-//         bool _setNewline = false;
-//         public Newline Newline 
-//         {
-//             get
-//             {
-//                 if(!_setNewline)
-//                 {
-//                     _newline = TextConverter.ParseNewline(NewlineString);
-//                     _setNewline = true;
-//                 }
-//                 return _newline;
-//             }
-//         }
-//         public static string VersionString
-//         {
-//             get
-//             {
-//                 var asmname = typeof(Program).Assembly.GetName();
-//                 return $"{asmname.Name} {asmname.Version}";
-//             }
-//         }
-//         public int OnExecute()
-//         {
-//             try
-//             {
-//                 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-//                 var fromenc = TextConverter.GetEncodingFromString(FromEncoding);
-//                 var toenc = TextConverter.GetEncodingFromString(ToEncoding);
-//                 using (var instm = GetInputStream(InputFile))
-//                 using (var inbufstm = new BufferedStream(instm))
-//                 using (var outstm = GetOutputStream(OutputFile))
-//                 using (var outbufstm = new BufferedStream(outstm))
-//                 {
-//                     TextConverter.ConvertStream(inbufstm, fromenc, outbufstm, toenc, NoPreamble, Newline);
-//                 }
-//                 return 0;
-//             }
-//             catch (Exception e)
-//             {
-//                 Console.Error.WriteLine($"converting error:{e}");
-//                 return 2;
-//             }
-//         }
-//         static Stream GetInputStream(string filePath)
-//         {
-//             if (string.IsNullOrEmpty(filePath))
-//             {
-//                 return Console.OpenStandardInput();
-//             }
-//             else
-//             {
-//                 return File.OpenRead(filePath);
-//             }
-//         }
-//         static Stream GetOutputStream(string filePath)
-//         {
-//             if (string.IsNullOrEmpty(filePath))
-//             {
-//                 return Console.OpenStandardOutput();
-//             }
-//             else
-//             {
-//                 return File.Create(filePath);
-//             }
-//         }
-//     }
     class Program
     {
         static void Main(string[] args)
@@ -122,20 +25,6 @@ namespace dotnet_text_encoder
             var app = ConsoleApp.Create();
             app.Add<Commands>();
             app.Run(args);
-
-            // var config = new ConfigurationBuilder()
-            //     .AddEnvironmentVariables("TENC_")
-            //     .Build();
-            // var services = new ServiceCollection();
-            // services.AddLogging(log => log.AddConfiguration(config.GetSection("Logging")).AddConsole());
-            // using (var provider = services.BuildServiceProvider())
-            // {
-            //     var app = new CommandLineApplication<Options>();
-            //     app.Conventions.UseDefaultConventions()
-            //         .UseConstructorInjection(provider);
-            //     var ret = app.Execute(args);
-            //     Environment.ExitCode = ret;
-            // }
         }
     }
 }
