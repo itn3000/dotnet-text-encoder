@@ -7,9 +7,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: "ubuntu-24.04"
+          - os: "ubuntu-22.04"
             rid: "linux-x64"
-            linker: "clang-16"
+            linker: "clang-13"
             imagetype: ubuntu
           - os: "windows-latest"
             rid: "win-x64"
@@ -29,4 +29,19 @@ jobs:
       - name: Test Solution
         run: dotnet test -c Release
       - name: Pack Solution
-        run: dotnet pack 
+        run: dotnet pack
+        if: ${{ matrix.imagetype == 'windows' }}
+      - name: compile aot
+        run: dotnet publish -c Release -r ${{matrix.rid}} -p:PublishAot=true
+        working-directory: dotnet-text-encoder
+      - name: upload nupkg
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkg
+          path: artifacts/packages/release/dotnet-text-encoder.*.nupkg
+        if: ${{ matrix.imagetype == 'windows' }}
+      - name: upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: dtenc-${{matrix.rid}}
+          path: artifacts/publish/dotnet-text-encoder/release_${{matrix.rid}}/*

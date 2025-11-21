@@ -23,7 +23,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <!-- <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.1.1" /> -->
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="10.0.0" />
@@ -32,9 +31,6 @@
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)../LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
   </ItemGroup>
-	<ItemGroup>
-		<RdXmlFile Include="rd.xml" />
-	</ItemGroup>
 
   <ItemGroup>
     <!-- <RdXmlFile Include="rd.xml"/> -->
