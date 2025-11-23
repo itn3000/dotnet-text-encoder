@@ -17,10 +17,7 @@ namespace Dotnet.Text.Encoder
                 "200-300",
                 "301"
             };
-            var results = new EncodingInfoGetter(new DummyConsole())
-            {
-                CodeRanges = cplist
-            }.GetTestResults().ToArray();
+            var results = new EncodingInfoGetter().GetTestResults(null, cplist).ToArray();
             Assert.Equal(203, results.Length);
             for (int i = 0; i <= 100; i++)
             {
@@ -38,20 +35,14 @@ namespace Dotnet.Text.Encoder
             {
                 "100-0",
             };
-            var results = new EncodingInfoGetter(new DummyConsole())
-            {
-                CodeRanges = cplist
-            }.GetTestResults().ToArray();
+            var results = new EncodingInfoGetter().GetTestResults(null, cplist).ToArray();
             Assert.Empty(results);
         }
         [Fact]
         public void ByName()
         {
             var names = new string[] { "utf-8" };
-            var results = new EncodingInfoGetter(new DummyConsole())
-            {
-                Names = names
-            }.GetTestResults().ToArray();
+            var results = new EncodingInfoGetter().GetTestResults(names, null).ToArray();
             Assert.Single(results);
             Assert.True(results[0].Found);
             Assert.Equal(names[0], results[0].Name);
@@ -60,10 +51,7 @@ namespace Dotnet.Text.Encoder
         public void InvalidName()
         {
             var names = new string[] { "aaaaaaaaaaaa" };
-            var results = new EncodingInfoGetter(new DummyConsole())
-            {
-                Names = names
-            }.GetTestResults().ToArray();
+            var results = new EncodingInfoGetter().GetTestResults(names, null).ToArray();
             Assert.Single(results);
             Assert.False(results[0].Found);
             Assert.Equal(names[0], results[0].Name);

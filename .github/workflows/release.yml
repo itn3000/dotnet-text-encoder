@@ -1,0 +1,134 @@
+name: Release
+on:
+  release:
+    types:
+      - created
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: "ubuntu-22.04"
+            rid: "linux-x64"
+            linker: "clang-13"
+            imagetype: ubuntu
+          - os: "windows-latest"
+            rid: "win-x64"
+            imagetype: windows
+          - os: "macos-14"
+            rid: "osx-x64"
+            imagetype: mac
+    env:
+      CppCompilerAndLinker: ${{ matrix.linker }}
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: |
+            10.0.x
+      - name: Test Solution
+        run: dotnet test -c Release
+      - name: Pack Solution
+        run: dotnet pack
+        if: ${{ matrix.imagetype == 'windows' }}
+      - name: compile aot
+        run: dotnet publish -c Release -r ${{matrix.rid}} -p:PublishAot=true
+        working-directory: dotnet-text-encoder
+      - name: upload nupkg
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkg
+          path: artifacts/package/release/dotnet-text-encoder.*
+        if: ${{ matrix.imagetype == 'windows' }}
+      - name: upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: dtenc-${{matrix.rid}}
+          path: artifacts/publish/dotnet-text-encoder/release_${{matrix.rid}}/*
+  upload-windows:
+    runs-on: "ubuntu-latest"
+    strategy:
+      matrix:
+        include:
+          - rid: win-x64
+    env:
+      GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    steps:
+      - name: download-nupkg
+        uses: actions/download-artifact@v5
+        with:
+          name: nupkg
+          path: nupkg
+      - name: download-binary
+        uses: actions/download-artifact@v5
+        with:
+          name: dtenc-${{matrix.rid}}
+          path: ${{matrix.rid}}
+      - name: rename-binary
+        run: mv dtenc.exe dtenc-${{matrix.rid}}.exe
+        working-directory: ${{matrix.rid}}
+      - name: upload-windows-exe
+        run: gh release upload --clobber dtenc-${{matrix.rid}}.exe
+        working-directory: ${{matrix.rid}}
+      - name: upload-windows-pdb
+        run: gh release upload --clobber dtenc.pdb
+        working-directory: ${{matrix.rid}}
+      - name: upload-nupkg
+        run: gh release upload --clobber dtenc*
+        working-directory: nupkg
+      - name: push-nupkg-to-nuget
+        run: dotnet nuget push -k ${{secrets.NUGET_TOKEN}} -s https://api.nuget.org/v3/index.json dtenc*.nupkg
+        working-directory: nupkg
+  upload-linux:
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      matrix:
+        include:
+          - rid: linux-x64
+    env:
+      GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    steps:
+      - name: download-binary
+        uses: actions/download-artifact@v5
+        with:
+          name: dtenc-${{matrix.rid}}
+          path: ${{matrix.rid}}
+      - name: rename-binary
+        run: mv dtenc dtenc-${{matrix.rid}}
+        working-directory: ${{matrix.rid}}
+      - name: upload-binary
+        run: gh release upload --clobber dtenc-${{matrix.rid}}
+        working-directory: ${{matrix.rid}}
+      - name: upload-dbg
+        run: gh release upload --clobber dtenc.dbg
+        working-directory: ${{matrix.rid}}
+  upload-osx:
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      matrix:
+        include:
+          - rid: osx-x64
+    env:
+      GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    steps:
+      - name: download-binary
+        uses: actions/download-artifact@v5
+        with:
+          name: dtenc-${{matrix.rid}}
+          path: ${{matrix.rid}}
+      - name: rename-binary
+        run: mv dtenc dtenc-${{matrix.rid}}
+        working-directory: ${{matrix.rid}}
+      - name: upload-binary
+        run: gh release upload --clobber dtenc-${{matrix.rid}}
+        working-directory: ${{matrix.rid}}
+      - name: compress-debug
+        run: tar cfz dtenc.dSYM.tgz dtenc.dSYM
+        working-directory: ${{matrix.rid}}
+      - name: upload-debug
+        run: gh release upload --clobber dtenc.dSYM.tgz
+        working-directory: ${{matrix.rid}}

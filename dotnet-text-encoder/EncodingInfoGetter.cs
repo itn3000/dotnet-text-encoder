@@ -3,67 +3,62 @@ using System.Text;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using McMaster.Extensions.CommandLineUtils;
+using ConsoleAppFramework;
 
 namespace dotnet_text_encoder
 {
     class EncodingTestResult
     {
-        public string Name { get; set; }
-        public string DisplayName { get; set; }
+        public string? Name { get; set; }
+        public string? DisplayName { get; set; }
         public int CodePage { get; set; }
         public bool Found { get; set; }
-        public byte[] Preamble { get; set; }
+        public byte[]? Preamble { get; set; }
     }
-    [Command("getinfo", ShowInHelpText = true, ExtendedHelpText = @"
-getting encoding info and output by CSV format
-
-Examples:
-try get info by name:
-    dotnet tenc getinfo -n shift_jis
-try get info by codepage number(single)
-    dotnet tenc getinfo -c 932
-try get info by codepage number(range)
-    dotnet tenc getinfo -c 0-1000")]
     class EncodingInfoGetter
     {
-        [Option("-n|--name", "encoding names", CommandOptionType.MultipleValue)]
-        public string[] Names { get; set; }
-        [Option("-c|--codepage", "code page range(number separated by '-', number is must be 0 - 65535)", CommandOptionType.MultipleValue)]
-        public string[] CodeRanges { get; set; }
-        [Option("-s|--show-fault", "show fault result", CommandOptionType.NoValue)]
-        public bool ShowFault { get; set; }
-        public EncodingInfoGetter(IConsole con)
+        /// <summary>
+        /// getting encoding info and output by CSV format
+        /// 
+        /// Examples:
+        /// try get info by name:
+        ///     dotnet tenc getinfo -n shift_jis
+        /// try get info by codepage number(single)
+        ///     dotnet tenc getinfo -c 932
+        /// try get info by codepage number(range)
+        ///     dotnet tenc getinfo -c 0-1000
+        /// </summary>
+        /// <param name="name">-n, encoding names</param>
+        /// <param name="codepage">-c, code page range(number separated by '-', number is must be 0 - 65535)</param>
+        /// <param name="showFault">-s, show fault result</param>
+        /// <returns></returns>
+        [Command("getinfo")]
+        public int GetEncodingInfo(string[]? name = null, string[]? codepage = null, bool showFault = false)
         {
-            _Console = con;
-        }
-        IConsole _Console;
-        public int OnExecute()
-        {
-            _Console.WriteLine($"Name,CodePage,Found,DisplayName,Preamble(hex)");
-            foreach (var result in GetTestResults())
+            Console.WriteLine($"Name,CodePage,Found,DisplayName,Preamble(hex)");
+            foreach (var result in GetTestResults(name, codepage))
             {
-                if(!ShowFault && !result.Found)
+                if (!showFault && !result.Found)
                 {
                     continue;
                 }
                 var preamble = result.Preamble != null ? string.Join("", result.Preamble.Select(x => x.ToString("x2"))) : "";
-                _Console.WriteLine($"{result.Name},{result.CodePage},{result.Found},{result.DisplayName},{preamble}");
+                Console.WriteLine($"{result.Name},{result.CodePage},{result.Found},{result.DisplayName},{preamble}");
             }
             return 0;
         }
-        public IEnumerable<EncodingTestResult> GetTestResults()
+        public IEnumerable<EncodingTestResult> GetTestResults(string[]? names, string[]? codeRanges)
         {
-            if (Names != null)
+            if (names != null)
             {
-                foreach (var name in Names)
+                foreach (var name in names)
                 {
                     yield return DoTestByName(name);
                 }
             }
-            if (CodeRanges != null)
+            if (codeRanges != null)
             {
-                foreach (var rangeString in CodeRanges)
+                foreach (var rangeString in codeRanges)
                 {
                     if (string.IsNullOrEmpty(rangeString))
                     {
