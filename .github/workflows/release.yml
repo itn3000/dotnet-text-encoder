@@ -70,13 +70,13 @@ jobs:
         run: mv dtenc.exe dtenc-${{matrix.rid}}.exe
         working-directory: ${{matrix.rid}}
       - name: upload-windows-exe
-        run: gh release upload --clobber dtenc-${{matrix.rid}}.exe
+        run: gh release upload ${{github.release.tag_name}} --clobber dtenc-${{matrix.rid}}.exe
         working-directory: ${{matrix.rid}}
       - name: upload-windows-pdb
-        run: gh release upload --clobber dtenc.pdb
+        run: gh release upload ${{github.release.tag_name}} --clobber dtenc.pdb
         working-directory: ${{matrix.rid}}
       - name: upload-nupkg
-        run: gh release upload --clobber dtenc*
+        run: gh release upload ${{github.release.tag_name}} --clobber dtenc*
         working-directory: nupkg
       - name: push-nupkg-to-nuget
         run: dotnet nuget push -k ${{secrets.NUGET_TOKEN}} -s https://api.nuget.org/v3/index.json dtenc*.nupkg
@@ -100,10 +100,10 @@ jobs:
         run: mv dtenc dtenc-${{matrix.rid}}
         working-directory: ${{matrix.rid}}
       - name: upload-binary
-        run: gh release upload --clobber dtenc-${{matrix.rid}}
+        run: gh release upload ${{github.release.tag_name}} --clobber dtenc-${{matrix.rid}}
         working-directory: ${{matrix.rid}}
       - name: upload-dbg
-        run: gh release upload --clobber dtenc.dbg
+        run: gh release upload ${{github.release.tag_name}} --clobber dtenc.dbg
         working-directory: ${{matrix.rid}}
   upload-osx:
     runs-on: ubuntu-latest
@@ -124,11 +124,11 @@ jobs:
         run: mv dtenc dtenc-${{matrix.rid}}
         working-directory: ${{matrix.rid}}
       - name: upload-binary
-        run: gh release upload --clobber dtenc-${{matrix.rid}}
+        run: gh release upload ${{github.release.tag_name}} --clobber dtenc-${{matrix.rid}}
         working-directory: ${{matrix.rid}}
       - name: compress-debug
         run: tar cfz dtenc.dSYM.tgz dtenc.dSYM
         working-directory: ${{matrix.rid}}
       - name: upload-debug
-        run: gh release upload --clobber dtenc.dSYM.tgz
+        run: gh release upload ${{github.release.tag_name}} --clobber dtenc.dSYM.tgz
         working-directory: ${{matrix.rid}}
