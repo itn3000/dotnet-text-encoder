@@ -78,10 +78,10 @@ jobs:
         run: gh release upload ${{github.event.release.tag_name}} --clobber dtenc.pdb
         working-directory: ${{matrix.rid}}
       - name: upload-nupkg
-        run: gh release upload ${{github.event.release.tag_name}} --clobber dtenc*
+        run: gh release upload ${{github.event.release.tag_name}} --clobber dotnet-text-encoder*
         working-directory: nupkg
       - name: push-nupkg-to-nuget
-        run: dotnet nuget push -k ${{secrets.NUGET_TOKEN}} -s https://api.nuget.org/v3/index.json dtenc*.nupkg
+        run: dotnet nuget push -k ${{secrets.NUGET_TOKEN}} -s https://api.nuget.org/v3/index.json dotnet-text-encoder*.nupkg
         working-directory: nupkg
   upload-linux:
     runs-on: ubuntu-latest
