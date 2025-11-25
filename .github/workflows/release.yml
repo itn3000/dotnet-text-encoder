@@ -49,6 +49,7 @@ jobs:
           path: artifacts/publish/dotnet-text-encoder/release_${{matrix.rid}}/*
   upload-windows:
     runs-on: "ubuntu-latest"
+    needs: build
     strategy:
       matrix:
         include:
