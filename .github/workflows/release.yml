@@ -57,6 +57,7 @@ jobs:
     env:
       GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     steps:
+      - uses: actions/checkout@v1
       - name: download-nupkg
         uses: actions/download-artifact@v5
         with:
@@ -92,6 +93,7 @@ jobs:
     env:
       GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     steps:
+      - uses: actions/checkout@v1
       - name: download-binary
         uses: actions/download-artifact@v5
         with:
@@ -116,6 +118,7 @@ jobs:
     env:
       GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     steps:
+      - uses: actions/checkout@v1
       - name: download-binary
         uses: actions/download-artifact@v5
         with:
