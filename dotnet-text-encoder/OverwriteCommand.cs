@@ -51,7 +51,7 @@ namespace dotnet_text_encoder
                 var basedir = !string.IsNullOrEmpty(baseDirectory) ? baseDirectory : Directory.GetCurrentDirectory();
                 var fromenc = TextConverter.GetEncodingFromString(from);
                 var toenc = TextConverter.GetEncodingFromString(to);
-                var matcher = new Matcher(StringComparison.CurrentCultureIgnoreCase);
+                var matcher = new Matcher(StringComparison.OrdinalIgnoreCase);
                 matcher.AddIncludePatterns(targets);
                 if (exclude != null && exclude.Length != 0)
                 {

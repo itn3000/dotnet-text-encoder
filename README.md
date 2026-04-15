@@ -174,6 +174,10 @@ available rids are listed in [Microsoft's official document](https://docs.micros
 
 # Release Notes
 
+## 3.0.1
+
+* fix error in overwrite with glob
+
 ## 3.0.0
 
 * update to dotnet10.0
